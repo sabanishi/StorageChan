@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -14,6 +16,11 @@ namespace Sabanishi.MainGame
 
         [SerializeField] private Tilemap _tmpTileMap;
         private PlayerPresenter _player;
+        
+        private Dictionary<string, string> _stageTilemapPathDict = new()
+        {
+            { "Tmp", "Tilemap/TmpTilemap" },
+        };
 
         /// <summary>
         /// Screen生成時に呼ばれる処理
@@ -21,7 +28,12 @@ namespace Sabanishi.MainGame
         public void Initialize()
         {
             _player = Instantiate(_playerPresenterPrefab,transform);
-            _stagePresenter.Initialize(_tmpTileMap);
+
+            if (TryGetStageTilemap("Tmp", out var tilemap))
+            {
+                _stagePresenter.Initialize(tilemap);
+            }
+            
             _player.Initialize();
         }
 
@@ -29,6 +41,24 @@ namespace Sabanishi.MainGame
         {
             _player.Dispose();
             _stagePresenter.Dispose();
+        }
+
+        private bool TryGetStageTilemap(string stageName, out Tilemap tilemap)
+        {
+            tilemap = null;
+            if (!_stageTilemapPathDict.TryGetValue(stageName, out var path))
+            {
+                Debug.LogError("[ScreenTransition] ScreenEnumに対応するパスが見つかりませんでした");
+                return false;
+            }
+
+            tilemap = Resources.Load<Tilemap>(path);
+            if (tilemap == null)
+            {
+                Debug.Log("[ScreenTransition] Tilemapの取得に失敗しました");
+            }
+
+            return true;
         }
     }
 }
