@@ -8,6 +8,8 @@ namespace Sabanishi.MainGame.Stage
     {
         [SerializeField] private StageView _view;
         private StageModel _model;
+        
+        private Vector3 _playerRespawnPos;
 
         public void Initialize(Tilemap tilemap)
         {
@@ -21,9 +23,18 @@ namespace Sabanishi.MainGame.Stage
             
             _model.CreateBlock(chipData);
         }
+        
+        /// <summary>
+        /// プレイヤーがリスポーンすべき位置を返す
+        /// </summary>
+        /// <returns></returns>
+        public Vector3 GetPlayerRespawnPos()
+        {
+            return _playerRespawnPos;
+        }
 
         /// <summary>
-        /// TimemapをChipEnum[,]に変換する
+        /// TilemapをChipEnum[,]に変換する
         /// </summary>
         /// <param name="tilemap"></param>
         /// <returns></returns>
@@ -48,6 +59,9 @@ namespace Sabanishi.MainGame.Stage
                         {
                             case "Block":
                                 chipData[x, y] = ChipEnum.Block;
+                                break;
+                            case "Start":
+                                _playerRespawnPos = new Vector3(x, y, 0);
                                 break;
                             default:
                                 Debug.LogError("Tile名が不正です");

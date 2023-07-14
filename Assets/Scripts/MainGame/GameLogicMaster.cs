@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UnityEngine;
@@ -34,7 +35,7 @@ namespace Sabanishi.MainGame
                 _stagePresenter.Initialize(tilemap);
             }
             
-            _player.Initialize();
+            _player.Initialize(_stagePresenter.GetPlayerRespawnPos());
         }
 
         public void Dispose()

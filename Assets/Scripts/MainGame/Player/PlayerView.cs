@@ -29,5 +29,24 @@ namespace Sabanishi.MainGame
         {
             _animator.SetBool(IsHang,isHang);
         }
+        
+        public void OnBodyDirectionChanged(BodyDirection bodyDirection)
+        {
+            switch (bodyDirection)
+            {
+                case BodyDirection.Down:
+                    _transform.localEulerAngles = new Vector3(0,0,0);
+                    break;
+                case BodyDirection.Up:
+                    _transform.localEulerAngles = new Vector3(0,0,180);
+                    break;
+                case BodyDirection.Right:
+                    _transform.localEulerAngles = new Vector3(0,0,90);
+                    break;
+                case BodyDirection.Left:
+                    _transform.localEulerAngles = new Vector3(0,0,-90);
+                    break;
+            }
+        }
     }
 }
