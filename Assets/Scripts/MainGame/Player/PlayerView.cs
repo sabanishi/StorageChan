@@ -48,5 +48,15 @@ namespace Sabanishi.MainGame
                     break;
             }
         }
+        
+        /// <summary>
+        /// 足元をチェックして空中にいるかどうかを返す
+        /// </summary>
+        /// <returns></returns>
+        public bool CheckIsAir()
+        {
+            //足元に何もない場合、空中にいると判定する
+            return Physics2D.Raycast(_transform.position, Vector2.down, 0.503f, LayerMask.GetMask("Block")) == false;
+        }
     }
 }
