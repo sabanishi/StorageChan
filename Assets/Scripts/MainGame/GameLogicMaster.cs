@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UnityEngine;
 using UnityEngine.Tilemaps;

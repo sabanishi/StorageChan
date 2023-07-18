@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using TMPro;
 using UniRx;
 using UnityEngine;
 
@@ -10,13 +9,14 @@ namespace Sabanishi.MainGame
         private const float MoveSpeed = 5.0f;
         private const float GravityScale = 9.8f;
         private const float JumpPower = 5.0f;
-        private const float _nigligibleError = 1e-4f;
+        private const float _nigligibleError = 0.2f;
         
         #region ReactiveProperty
 
         private ReactiveProperty<bool> _isAir;
         public IReadOnlyReactiveProperty<bool> IsAir => _isAir;
 
+        private Vector3 _beforePos;//1フレーム前の座標
         private ReactiveProperty<Vector3> _pos;
         public IReadOnlyReactiveProperty<Vector3> Pos => _pos;
 
@@ -33,7 +33,6 @@ namespace Sabanishi.MainGame
         private List<BoxCollider2D> _nearChipColliders;
         private Vector3 _colliderSize;
         private Vector3 _colliderOffset;
-        private float _colliderUp, _colliderDown, _colliderRight, _colliderLeft;
 
         public PlayerModel()
         {
@@ -54,11 +53,8 @@ namespace Sabanishi.MainGame
             _myCollider = myCollider;
             _colliderSize = _myCollider.size;
             _colliderOffset = _myCollider.offset;
-            
-            _colliderUp = (_colliderSize.y/2f + _colliderOffset.y);
-            _colliderDown = (_colliderSize.y/2f - _colliderOffset.y);
-            _colliderRight = (_colliderSize.x/2f + _colliderOffset.x);
-            _colliderLeft = (_colliderSize.x/2f - _colliderOffset.x);
+
+            _beforePos = startPos+_colliderOffset;
         }
 
         public void Dispose()
@@ -74,16 +70,14 @@ namespace Sabanishi.MainGame
         /// </summary>
         public void Update(Vector3 beforePos,bool isAir)
         {
-            //if(beforePos!=_pos.Value)Debug.Log(beforePos-_pos.Value);
             _pos.Value = beforePos;
             _isAir.Value = isAir;
             InputMove();
             ApplyGravity();
 
             //移動処理
-            Debug.Log(_speedVec);
             _pos.Value += _speedVec * Time.deltaTime;
-            
+
             ResolveCollision();
         }
 
@@ -92,47 +86,66 @@ namespace Sabanishi.MainGame
         /// </summary>
         private void ResolveCollision()
         {
-            var newPos = _pos.Value;
+            var newPos = _pos.Value+_colliderOffset;
             foreach (BoxCollider2D collider in _nearChipColliders)
             {
-                var objTransform = collider.gameObject.transform;
-                var otherPos = objTransform.position;
+                var otherPos = collider.gameObject.transform.position;
                 var otherSize = collider.size;
-                var otherSize2 = otherSize - new Vector2(_nigligibleError, _nigligibleError);
 
                 //垂直方向のめり込み解消
-                if (newPos.y + _colliderUp > otherPos.y - otherSize2.y / 2f
-                    && newPos.y - _colliderDown < otherPos.y + otherSize2.y / 2f)
+                if ((newPos.x + _colliderSize.x/2) - (otherPos.x - otherSize.x / 2f) >_nigligibleError
+                    && (newPos.x - _colliderSize.x/2) - (otherPos.x + otherSize.x / 2f)<-_nigligibleError)
                 {
-                    if (otherPos.x - otherSize.x / 2f - (newPos.x + _colliderSize.x / 2f) < -_nigligibleError)
-                    {
-                        //右方向
-                        newPos.x = otherPos.x - otherSize.x / 2f - _colliderSize.x / 2f;
-                    }
-                    else if (newPos.x - _colliderSize.x / 2f - (otherPos.x + otherSize.x / 2f) < -_nigligibleError)
-                    {
-                        //左方向
-                        newPos.x = otherPos.x + otherSize.x / 2f + _colliderSize.x / 2f;
-                    }
-                }
-
-                //水平方向のめり込み解消
-                if (newPos.x + _colliderRight > otherPos.x - otherSize2.x / 2f
-                    && newPos.x - _colliderLeft < otherPos.x + otherSize2.x / 2f)
-                {
-                    if (otherPos.y-otherSize.y/2f - (newPos.y+_colliderSize.y/2f) < -_nigligibleError)
+                    Debug.Log("(newPos.x + _colliderSize.x/2) - (otherPos.x - otherSize.x / 2f): "+((newPos.x + _colliderSize.x/2) - (otherPos.x - otherSize.x / 2f)));
+                    Debug.Log("(newPos.x - _colliderSize.x/2) - (otherPos.x + otherSize.x / 2f): "+((newPos.x - _colliderSize.x/2) - (otherPos.x + otherSize.x / 2f)));
+                    if (otherPos.y+otherSize.y/2 > newPos.y-_colliderSize.y/2)
                     {
                         //上方向
-                        newPos.y = otherPos.y + otherSize.y/2f + _colliderSize.y/2f;
+                        if (otherPos.y + otherSize.y / 2 - _beforePos.y-_colliderSize.y/2<0)
+                        {
+                            Debug.Log("上方向");
+                            newPos.y = otherPos.y + otherSize.y/2f + _colliderSize.y/2f;
+                        }
                     }
-                    else if (newPos.y-_colliderSize.y/2f - (otherPos.y+otherSize.y/2f) < -_nigligibleError)
+                    else if (otherPos.y-otherSize.y/2 < newPos.y+_colliderSize.y/2)
                     {
                         //下方向
-                        newPos.y = otherPos.y - otherSize.y/2f - _colliderSize.y/2f;
+                        if (otherPos.y - otherSize.y / 2 - _beforePos.y+_colliderSize.y/2 > 0)
+                        {
+                            Debug.Log("下方向");
+                            newPos.y = otherPos.y - otherSize.y/2f - _colliderSize.y/2f;
+                        }
+                       
+                    }
+                }
+                
+                //水平方向のめり込み解消
+                if ((newPos.y + _colliderSize.y/2) -(otherPos.y - otherSize.y / 2f)>_nigligibleError
+                    && (newPos.y - _colliderSize.y/2) - (otherPos.y + otherSize.y / 2f)<-_nigligibleError)
+                {
+                    if (otherPos.x+otherSize.x/2 > newPos.x-_colliderSize.x/2)
+                    {
+                        //右方向
+                        if (otherPos.x + otherSize.x / 2 - _beforePos.x-_colliderSize.x/2<0)
+                        {
+                            Debug.Log("右方向");
+                            newPos.x = otherPos.x + otherSize.x/2 + _colliderSize.x/2;
+                        }
+                    }
+                    else if (otherPos.x-otherSize.x/2 < newPos.x+_colliderSize.x/2)
+                    {
+                        //左方向
+                        if (otherPos.x - otherSize.x / 2 - _beforePos.x+_colliderSize.x/2 > 0)
+                        {
+                            Debug.Log("左方向");
+                            newPos.x = otherPos.x - otherSize.x/2f - _colliderSize.x/2f;
+                        }
+                       
                     }
                 }
             }
-            _pos.Value = newPos;
+            _beforePos = _pos.Value+_colliderOffset;
+            _pos.Value = newPos-_colliderOffset;
         }
 
         /// <summary>
@@ -181,7 +194,6 @@ namespace Sabanishi.MainGame
             //ジャンプ処理
             if (!_isAir.Value&&Input.GetButtonDown("Jump"))
             {
-                Debug.Log("Jump"+_speedVec.y);
                 newSpeedVec.y = JumpPower;
                 _isAir.Value = true;
             }
