@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 
@@ -20,12 +21,14 @@ namespace Sabanishi.MainGame
             _view.Initialize();
             _model.Initialize(startPos,GetComponent<BoxCollider2D>());
             _surroundingCollider.Initialize();
-            
-            
+
             _model.Pos.Subscribe(_view.OnPosChanged).AddTo(gameObject);
             _model.IsAir.Subscribe(_view.OnIsAirChanged).AddTo(gameObject);
             _model.IsHang.Subscribe(_view.OnIsHangChanged).AddTo(gameObject);
             _model.NowBodyDirection.Subscribe(_view.OnBodyDirectionChanged).AddTo(gameObject);
+            _model.OnUpdateSpeedSubject.Subscribe(_view.OnSpeedChanged).AddTo(gameObject);
+
+            _view.PosChangeSubject.Subscribe(_model.OnPosChanged).AddTo(gameObject);
 
             _surroundingCollider.OnAdd.Subscribe(_model.AddNearChipCollider).AddTo(gameObject);
             _surroundingCollider.OnRemove.Subscribe(_model.RemoveNearChipCollider).AddTo(gameObject);
@@ -37,12 +40,13 @@ namespace Sabanishi.MainGame
         public void Dispose()
         {
             _model.Dispose();
+            _view.Dispose();
             _surroundingCollider.Dispose();
         }
 
         public void Update()
         {
-            bool isAir = _view.CheckIsAir();
+            bool isAir = _view.CheckIsAir(_model.NowBodyDirection.Value);
             _model.Update(_transform.position,isAir);
         }
         
