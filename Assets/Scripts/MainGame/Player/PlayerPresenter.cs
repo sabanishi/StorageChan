@@ -27,6 +27,8 @@ namespace Sabanishi.MainGame
             _model.IsHang.Subscribe(_view.OnIsHangChanged).AddTo(gameObject);
             _model.NowBodyDirection.Subscribe(_view.OnBodyDirectionChanged).AddTo(gameObject);
             _model.OnUpdateSpeedSubject.Subscribe(_view.OnSpeedChanged).AddTo(gameObject);
+            _model.CheckCanPaintAction = _view.CheckCanPaint;
+            _model.CheckIsAir = _view.CheckIsAir;
 
             _view.PosChangeSubject.Subscribe(_model.OnPosChanged).AddTo(gameObject);
 

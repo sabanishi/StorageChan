@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
+using MainGame.Stage;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace Sabanishi.MainGame
@@ -12,53 +12,67 @@ namespace Sabanishi.MainGame
         private const float GravityScale = 9.8f;
         private const float JumpPower = 5.0f;
         private const float _nigligibleError = 0.12f;
-        
+
         #region ReactiveProperty
 
         private ReactiveProperty<bool> _isAir;
         public IReadOnlyReactiveProperty<bool> IsAir => _isAir;
 
-        private Vector3 _beforePos;//1フレーム前の座標
+        private Vector3 _beforePos; //1フレーム前の座標
         private readonly ReactiveProperty<Vector3> _pos;
         public IReadOnlyReactiveProperty<Vector3> Pos => _pos;
         private Vector3 _speedVec;
 
         private readonly ReactiveProperty<bool> _isHang;
         public IReadOnlyReactiveProperty<bool> IsHang => _isHang;
+
+        private ReactiveProperty<Direction> _bodyDirection;
+        public IReadOnlyReactiveProperty<Direction> NowBodyDirection => _bodyDirection;
         
-        private ReactiveProperty<BodyDirection> _bodyDirection;
-        public IReadOnlyReactiveProperty<BodyDirection> NowBodyDirection => _bodyDirection;
-        
+        private ReactiveProperty<bool> _isPaintMode;
+        public IObservable<bool> IsPaintMode => _isPaintMode;
+
         private Subject<Vector3> _onUpdateSpeedSubject;
         public IObservable<Vector3> OnUpdateSpeedSubject => _onUpdateSpeedSubject;
+        
+        private Subject<Direction> _checkIsAirSubject;
+        public IObservable<Direction> CheckIsAirSubject => _checkIsAirSubject;
 
         #endregion
-        
+
         private BoxCollider2D _myCollider;
         private List<BoxCollider2D> _nearChipColliders;
-        private bool _isRightCollide,_isLeftCollide,_isUpCollide,_isDownCollide;
-        private bool _isStickJump;//地上以外からジャンプしたかどうか
+        private bool _isRightCollide, _isLeftCollide, _isUpCollide, _isDownCollide;
+        private bool _isStickJump; //地上以外からジャンプしたかどうか
+        private BlockChip _nowSelectedChip;
+
+        public Func<Direction, Direction,BlockChip> CheckCanPaintAction;
+        public Func<Direction,bool> CheckIsAir;
 
         public PlayerModel()
         {
             _isAir = new();
             _pos = new();
-            _speedVec = new();
             _isHang = new();
             _bodyDirection = new();
+            _isPaintMode = new();
+
             _nearChipColliders = new();
             _onUpdateSpeedSubject = new();
+            
         }
 
-        public void Initialize(Vector3 startPos,BoxCollider2D myCollider)
+        public void Initialize(Vector3 startPos, BoxCollider2D myCollider)
         {
             _pos.Value = startPos;
-            _beforePos = startPos;
             _isAir.Value = false;
             _isHang.Value = false;
-            _bodyDirection.Value = BodyDirection.Down;
+            _bodyDirection.Value = Direction.Down;
+            _isPaintMode.Value = false;
+
+            _beforePos = startPos;
             _myCollider = myCollider;
-            _speedVec=Vector3.zero;
+            _speedVec = Vector3.zero;
         }
 
         public void Dispose()
@@ -67,16 +81,18 @@ namespace Sabanishi.MainGame
             _pos.Dispose();
             _isHang.Dispose();
             _bodyDirection.Dispose();
+            _isPaintMode.Dispose();
+
             _onUpdateSpeedSubject.Dispose();
         }
 
         /// <summary>
         /// 毎フレーム実行される処理
         /// </summary>
-        public void Update(Vector3 beforePos,bool isAir)
+        public void Update(Vector3 beforePos, bool isAir)
         {
             //1フレームの間隔が大きすぎる時、処理を飛ばす
-            if(Time.deltaTime>0.2f) return;
+            if (Time.deltaTime > 0.2f) return;
 
             if (!isAir)
             {
@@ -85,17 +101,106 @@ namespace Sabanishi.MainGame
 
             _pos.Value = beforePos;
             _isAir.Value = isAir;
-            InputMove();
+            InputPaint();
+            if (!_isPaintMode.Value) InputMove();
             ApplyGravity();
-            InputJump();
+            if (!_isPaintMode.Value) InputJump();
 
             //移動処理
             _pos.Value += _speedVec * Time.deltaTime;
 
             ResolveCollision();
             SpeedUpdate();
+            CheckNextStepIsAir(isAir);
             Rotate();
+        }
 
+        /// <summary>
+        /// 次の足場が空中かどうかをチェックする
+        /// </summary>
+        private void CheckNextStepIsAir(bool isBeforeAir)
+        {
+            if (isBeforeAir) return;
+            if (CheckIsAir.Invoke(_bodyDirection.Value))
+            {
+                if (_bodyDirection.Value is Direction.Down or Direction.Up)
+                {
+                    _pos.Value -= Vector3.right * (_speedVec.x * Time.deltaTime);
+                }
+                else
+                {
+                    _pos.Value -= Vector3.up * (_speedVec.y * Time.deltaTime);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// ペイントモードの入力を処理する
+        /// </summary>
+        private void InputPaint()
+        {
+            if(_nowSelectedChip!=null)_nowSelectedChip.SetPaintSignActive(false);
+            
+            if (Input.GetButtonDown("Paint"))
+            {
+                _isPaintMode.Value = !_isPaintMode.Value;
+                _speedVec.x = 0;
+                if (_speedVec.y > 0) _speedVec.y = 0;
+                return;
+            }
+
+            if (!_isPaintMode.Value) return;
+            
+            //WASDキーを検知する
+            var x = Input.GetAxisRaw("Horizontal");
+            var y = Input.GetAxisRaw("Vertical");
+            var direction = Direction.None;
+            var reverseDirection = Direction.None;
+            switch (x)
+            {
+                case > 0:
+                    //右
+                    direction=Direction.Right;
+                    reverseDirection = Direction.Left;
+                    break;
+                case < 0:
+                    //左
+                    direction=Direction.Left;
+                    reverseDirection = Direction.Right;
+                    break;
+            }
+
+            switch (y)
+            {
+                case > 0:
+                    //上
+                    direction=Direction.Up;
+                    reverseDirection = Direction.Down;
+                    break;
+                case < 0:
+                    //下
+                    direction=Direction.Down;
+                    reverseDirection = Direction.Up;
+                    break;
+            }
+
+            if (direction == Direction.None) return;
+
+            BlockChip chip=CheckCanPaintAction?.Invoke(_bodyDirection.Value,direction);
+            if (chip != null)
+            {
+                if (chip.CanPaint(reverseDirection))
+                {
+                    chip.SetPaintSignActive(true);
+                    _nowSelectedChip = chip;
+                    
+                    //Directionキーが押されたことを検知して、ペイントする
+                    if (Input.GetButtonDown("Decide"))
+                    {
+                        chip.Paint(reverseDirection);
+                    }
+                }
+            }
         }
         
         /// <summary>
@@ -105,17 +210,17 @@ namespace Sabanishi.MainGame
         {
             switch (_bodyDirection.Value)
             {
-                case BodyDirection.Down:
+                case Direction.Down:
                     _onUpdateSpeedSubject.OnNext(_speedVec);
                     break;
-                case BodyDirection.Up:
+                case Direction.Up:
                     _onUpdateSpeedSubject.OnNext(-_speedVec);
                     break;
-                case BodyDirection.Left:
-                    _onUpdateSpeedSubject.OnNext(new Vector3(-_speedVec.y,_speedVec.x,0));
+                case Direction.Left:
+                    _onUpdateSpeedSubject.OnNext(new Vector3(-_speedVec.y, _speedVec.x, 0));
                     break;
-                case BodyDirection.Right:
-                    _onUpdateSpeedSubject.OnNext(new Vector3(_speedVec.y,_speedVec.x,0));
+                case Direction.Right:
+                    _onUpdateSpeedSubject.OnNext(new Vector3(_speedVec.y, _speedVec.x, 0));
                     break;
             }
         }
@@ -127,25 +232,27 @@ namespace Sabanishi.MainGame
         {
             if (_isAir.Value)
             {
-                _bodyDirection.Value = BodyDirection.Down;
+                _bodyDirection.Value = Direction.Down;
             }
-            
+
             if (_isRightCollide && _speedVec.x > 0)
             {
-                _bodyDirection.Value = BodyDirection.Right;
+                _bodyDirection.Value = Direction.Right;
             }
+
             if (_isLeftCollide && _speedVec.x < 0)
             {
-                _bodyDirection.Value = BodyDirection.Left;
+                _bodyDirection.Value = Direction.Left;
             }
-            
+
             if (_isUpCollide && _speedVec.y > 0)
             {
-                _bodyDirection.Value = BodyDirection.Up;
+                _bodyDirection.Value = Direction.Up;
             }
+
             if (_isDownCollide && _speedVec.y < 0)
             {
-                _bodyDirection.Value = BodyDirection.Down;
+                _bodyDirection.Value = Direction.Down;
             }
         }
 
@@ -166,83 +273,98 @@ namespace Sabanishi.MainGame
             var offset = _myCollider.offset;
             switch (_bodyDirection.Value)
             {
-                case BodyDirection.Down:
+                case Direction.Down:
                     colliderSize = _myCollider.size;
                     colliderOffset = _myCollider.offset;
                     break;
-                case BodyDirection.Up:
+                case Direction.Up:
                     colliderSize = _myCollider.size;
                     colliderOffset = -_myCollider.offset;
                     break;
-                case BodyDirection.Right:
-                    colliderSize = new Vector3(size.y,size.x,0);
-                    colliderOffset = new Vector3(-offset.y,offset.x,0);
+                case Direction.Right:
+                    colliderSize = new Vector3(size.y, size.x, 0);
+                    colliderOffset = new Vector3(-offset.y, offset.x, 0);
                     break;
-                case BodyDirection.Left:
-                    colliderSize = new Vector3(size.y,size.x,0);
-                    colliderOffset = new Vector3(offset.y,-offset.x,0);
+                case Direction.Left:
+                    colliderSize = new Vector3(size.y, size.x, 0);
+                    colliderOffset = new Vector3(offset.y, -offset.x, 0);
                     break;
                 default:
                     throw new Exception("BodyDirectionの値が不正です。");
             }
-            var newPos = _pos.Value+colliderOffset;
+
+            var newPos = _pos.Value + colliderOffset;
             foreach (BoxCollider2D collider in _nearChipColliders)
             {
                 var otherPos = collider.gameObject.transform.position;
                 var otherSize = collider.size;
+                var chip = collider.gameObject.GetComponent<BlockChip>();
 
                 //垂直方向のめり込み解消
-                if ((newPos.x + colliderSize.x/2) - (otherPos.x - otherSize.x / 2f) >_nigligibleError
-                    && (newPos.x - colliderSize.x/2) - (otherPos.x + otherSize.x / 2f)<-_nigligibleError)
+                if ((newPos.x + colliderSize.x / 2) - (otherPos.x - otherSize.x / 2f) > _nigligibleError
+                    && (newPos.x - colliderSize.x / 2) - (otherPos.x + otherSize.x / 2f) < -_nigligibleError)
                 {
-                    if (otherPos.y+otherSize.y/2 > newPos.y-colliderSize.y/2)
+                    if (otherPos.y + otherSize.y / 2 > newPos.y - colliderSize.y / 2)
                     {
                         //上方向に戻す
-                        if (otherPos.y + otherSize.y / 2 - _beforePos.y-colliderSize.y/2<0)
+                        if (otherPos.y + otherSize.y / 2 - _beforePos.y - colliderSize.y / 2 < 0)
                         {
-                            _isDownCollide = true;
-                            newPos.y = otherPos.y + otherSize.y/2f + colliderSize.y/2f;
+                            if (chip.CanStick(Direction.Up))
+                            {
+                                _isDownCollide = true;
+                            }
+                            newPos.y = otherPos.y + otherSize.y / 2f + colliderSize.y / 2f;
                         }
                     }
-                    if (otherPos.y-otherSize.y/2 < newPos.y+colliderSize.y/2)
+
+                    if (otherPos.y - otherSize.y / 2 < newPos.y + colliderSize.y / 2)
                     {
                         //下方向に戻す
-                        if (otherPos.y - otherSize.y / 2 - _beforePos.y+colliderSize.y/2 > 0)
+                        if (otherPos.y - otherSize.y / 2 - _beforePos.y + colliderSize.y / 2 > 0)
                         {
-                            _isUpCollide = true;
-                            newPos.y = otherPos.y - otherSize.y/2f - colliderSize.y/2f;
+                            if (chip.CanStick(Direction.Down))
+                            {
+                                _isUpCollide = true;
+                            }
+                            newPos.y = otherPos.y - otherSize.y / 2f - colliderSize.y / 2f;
                         }
-                       
                     }
                 }
-                
+
                 //水平方向のめり込み解消
-                if ((newPos.y + colliderSize.y/2) -(otherPos.y - otherSize.y / 2f)>_nigligibleError
-                    && (newPos.y - colliderSize.y/2) - (otherPos.y + otherSize.y / 2f)<-_nigligibleError)
+                if ((newPos.y + colliderSize.y / 2) - (otherPos.y - otherSize.y / 2f) > _nigligibleError
+                    && (newPos.y - colliderSize.y / 2) - (otherPos.y + otherSize.y / 2f) < -_nigligibleError)
                 {
-                    if (otherPos.x+otherSize.x/2 > newPos.x-colliderSize.x/2)
+                    if (otherPos.x + otherSize.x / 2 > newPos.x - colliderSize.x / 2)
                     {
                         //右方向に戻す
-                        if (otherPos.x + otherSize.x / 2f - _beforePos.x-colliderSize.x/2<0)
+                        if (otherPos.x + otherSize.x / 2f - _beforePos.x - colliderSize.x / 2 < 0)
                         {
-                            _isLeftCollide = true;
-                            newPos.x = otherPos.x + otherSize.x/2f + colliderSize.x/2f;
+                            if (chip.CanStick(Direction.Right))
+                            {
+                                _isLeftCollide = true;
+                            }
+                            newPos.x = otherPos.x + otherSize.x / 2f + colliderSize.x / 2f;
                         }
                     }
-                    if (otherPos.x-otherSize.x/2f < newPos.x+colliderSize.x/2f)
+
+                    if (otherPos.x - otherSize.x / 2f < newPos.x + colliderSize.x / 2f)
                     {
                         //左方向に戻す
-                        if (otherPos.x - otherSize.x / 2f - _beforePos.x+colliderSize.x/2f > 0)
+                        if (otherPos.x - otherSize.x / 2f - _beforePos.x + colliderSize.x / 2f > 0)
                         {
-                            _isRightCollide = true;
-                            newPos.x = otherPos.x - otherSize.x/2f - colliderSize.x/2f;
+                            if (chip.CanStick(Direction.Left))
+                            {
+                                _isRightCollide = true;
+                            }
+                            newPos.x = otherPos.x - otherSize.x / 2f - colliderSize.x / 2f;
                         }
-                       
                     }
                 }
             }
-            _beforePos = _pos.Value+colliderOffset;
-            _pos.Value = newPos-colliderOffset;
+
+            _beforePos = _pos.Value + colliderOffset;
+            _pos.Value = newPos - colliderOffset;
         }
 
         /// <summary>
@@ -254,7 +376,7 @@ namespace Sabanishi.MainGame
             {
                 _speedVec.y -= GravityScale * Time.deltaTime;
             }
-            else if(NowBodyDirection.Value is BodyDirection.Down or BodyDirection.Up)
+            else if (NowBodyDirection.Value is Direction.Down or Direction.Up)
             {
                 _speedVec.y = 0;
             }
@@ -266,7 +388,7 @@ namespace Sabanishi.MainGame
         private void InputMove()
         {
             Vector3 newSpeedVec = _speedVec;
-            if (NowBodyDirection.Value is BodyDirection.Down or BodyDirection.Up)
+            if (NowBodyDirection.Value is Direction.Down or Direction.Up)
             {
                 var x = Input.GetAxis("Horizontal");
                 newSpeedVec.x = x switch
@@ -286,7 +408,8 @@ namespace Sabanishi.MainGame
                     _ => _isStickJump ? _speedVec.y : 0
                 };
             }
-            _speedVec= newSpeedVec;
+
+            _speedVec = newSpeedVec;
         }
 
         /// <summary>
@@ -294,29 +417,37 @@ namespace Sabanishi.MainGame
         /// </summary>
         private void InputJump()
         {
-            if (!_isAir.Value&&Input.GetButtonDown("Jump"))
+            if (!_isAir.Value && Input.GetButtonDown("Jump"))
             {
                 switch (_bodyDirection.Value)
                 {
-                    case BodyDirection.Down:
-                        _speedVec.y = JumpPower; break;
-                    case BodyDirection.Up: _speedVec.y = -JumpPower; break;
-                    case BodyDirection.Right: _speedVec.x = -JumpPower; break;
-                    case BodyDirection.Left: _speedVec.x = JumpPower; break;
+                    case Direction.Down:
+                        _speedVec.y = JumpPower;
+                        break;
+                    case Direction.Up:
+                        _speedVec.y = -JumpPower;
+                        break;
+                    case Direction.Right:
+                        _speedVec.x = -JumpPower;
+                        break;
+                    case Direction.Left:
+                        _speedVec.x = JumpPower;
+                        break;
                 }
+
                 _isAir.Value = true;
-                if (!_bodyDirection.Value.Equals(BodyDirection.Down))
+                if (!_bodyDirection.Value.Equals(Direction.Down))
                 {
                     _isStickJump = true;
                 }
             }
         }
-        
+
         public void AddNearChipCollider(BoxCollider2D collider)
         {
             _nearChipColliders.Add(collider);
         }
-        
+
         public void RemoveNearChipCollider(BoxCollider2D collider)
         {
             _nearChipColliders.Remove(collider);
