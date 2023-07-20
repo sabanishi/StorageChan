@@ -11,6 +11,8 @@ namespace Sabanishi.MainGame
         private static readonly int IsHang = Animator.StringToHash("IsHang");
         private static readonly int YSpeed = Animator.StringToHash("ySpeed");
         private static readonly int IsWalk = Animator.StringToHash("IsWalk");
+        private static readonly int IsPaint = Animator.StringToHash("IsPaint");
+        private static readonly int Paint = Animator.StringToHash("paint");
         private Animator _animator;
         private Transform _transform;
         private float _rayLength;
@@ -49,6 +51,16 @@ namespace Sabanishi.MainGame
         public void OnIsHangChanged(bool isHang)
         {
             _animator.SetBool(IsHang, isHang);
+        }
+        
+        public void OnIsPaintModeChanged(bool isPaintMode)
+        {
+            _animator.SetBool(IsPaint, isPaintMode);
+        }
+
+        public void PlayPaintAnimation()
+        {
+            _animator.SetTrigger(Paint);
         }
 
         public void OnSpeedChanged(Vector3 vec)

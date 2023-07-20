@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using MainGame.Stage;
 using UniRx;
 using UnityEngine;
@@ -28,18 +29,19 @@ namespace Sabanishi.MainGame
 
         private ReactiveProperty<Direction> _bodyDirection;
         public IReadOnlyReactiveProperty<Direction> NowBodyDirection => _bodyDirection;
-        
+
         private ReactiveProperty<bool> _isPaintMode;
         public IObservable<bool> IsPaintMode => _isPaintMode;
 
         private Subject<Vector3> _onUpdateSpeedSubject;
         public IObservable<Vector3> OnUpdateSpeedSubject => _onUpdateSpeedSubject;
-        
+
         private Subject<Direction> _checkIsAirSubject;
         public IObservable<Direction> CheckIsAirSubject => _checkIsAirSubject;
 
         #endregion
 
+        private bool _canOperate;
         private BoxCollider2D _myCollider;
         private List<BoxCollider2D> _nearChipColliders;
         private bool _isRightCollide, _isLeftCollide, _isUpCollide, _isDownCollide;
@@ -47,8 +49,9 @@ namespace Sabanishi.MainGame
         private BlockChip _nowSelectedChip;
         private bool _isPainted;
 
-        public Func<Direction, Direction,BlockChip> CheckCanPaintAction;
-        public Func<Direction,bool> CheckIsAir;
+        public Func<Direction, Direction, BlockChip> CheckCanPaintAction;
+        public Func<Direction, bool> CheckIsAir;
+        public Action PlayPaintAction;
 
         public PlayerModel()
         {
@@ -60,7 +63,6 @@ namespace Sabanishi.MainGame
 
             _nearChipColliders = new();
             _onUpdateSpeedSubject = new();
-            
         }
 
         public void Initialize(Vector3 startPos, BoxCollider2D myCollider)
@@ -74,6 +76,7 @@ namespace Sabanishi.MainGame
             _beforePos = startPos;
             _myCollider = myCollider;
             _speedVec = Vector3.zero;
+            _canOperate = true;
         }
 
         public void Dispose()
@@ -87,6 +90,7 @@ namespace Sabanishi.MainGame
             _onUpdateSpeedSubject.Dispose();
         }
 
+        // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// 毎フレーム実行される処理
         /// </summary>
@@ -102,10 +106,10 @@ namespace Sabanishi.MainGame
 
             _pos.Value = beforePos;
             _isAir.Value = isAir;
-            InputPaint();
-            if (!_isPaintMode.Value) InputMove();
+            if (_canOperate) InputPaint();
+            if (!_isPaintMode.Value && _canOperate) InputMove();
             ApplyGravity();
-            if (!_isPaintMode.Value) InputJump();
+            if (!_isPaintMode.Value && _canOperate) InputJump();
 
             //移動処理
             _pos.Value += _speedVec * Time.deltaTime;
@@ -114,7 +118,8 @@ namespace Sabanishi.MainGame
             SpeedUpdate();
             CheckNextStepIsAir(isAir);
             Rotate();
-            
+
+            if (!_canOperate) return;
             if (Input.GetButton("Paint"))
             {
                 _isPaintMode.Value = true;
@@ -145,16 +150,16 @@ namespace Sabanishi.MainGame
                 }
             }
         }
-        
+
         /// <summary>
         /// ペイントモードの入力を処理する
         /// </summary>
         private void InputPaint()
         {
-            if(_nowSelectedChip!=null)_nowSelectedChip.SetPaintSignActive(false);
+            if (_nowSelectedChip != null) _nowSelectedChip.SetPaintSignActive(false);
 
             if (!_isPaintMode.Value) return;
-            
+
             //WASDキーを検知する
             var x = Input.GetAxisRaw("Horizontal");
             var y = Input.GetAxisRaw("Vertical");
@@ -163,11 +168,11 @@ namespace Sabanishi.MainGame
             {
                 case > 0:
                     //右
-                    direction=Direction.Right;
+                    direction = Direction.Right;
                     break;
                 case < 0:
                     //左
-                    direction=Direction.Left;
+                    direction = Direction.Left;
                     break;
             }
 
@@ -175,31 +180,40 @@ namespace Sabanishi.MainGame
             {
                 case > 0:
                     //上
-                    direction=Direction.Up;
+                    direction = Direction.Up;
                     break;
                 case < 0:
                     //下
-                    direction=Direction.Down;
+                    direction = Direction.Down;
                     break;
             }
 
             if (direction == Direction.None) return;
 
-            BlockChip chip=CheckCanPaintAction?.Invoke(_bodyDirection.Value,direction);
+            BlockChip chip = CheckCanPaintAction?.Invoke(_bodyDirection.Value, direction);
             if (chip != null)
             {
                 chip.SetPaintSignActive(true);
                 _nowSelectedChip = chip;
-                    
+
                 //Directionキーが押されたことを検知して、ペイントする
                 if (Input.GetButtonUp("Paint"))
                 {
                     chip.Paint(CalcUtils.ReverseDirection(direction));
                     _isPainted = true;
+
+                    UniTask.Void(async () =>
+                    {
+                        chip.SetPaintSignActive(false);
+                        _canOperate = false;
+                        PlayPaintAction?.Invoke();
+                        await UniTask.Delay(500);
+                        _canOperate = true;
+                    });
                 }
             }
         }
-        
+
         /// <summary>
         /// 速度情報をView側に送信する
         /// </summary>
@@ -310,6 +324,7 @@ namespace Sabanishi.MainGame
                             {
                                 _isDownCollide = true;
                             }
+
                             newPos.y = otherPos.y + otherSize.y / 2f + colliderSize.y / 2f;
                         }
                     }
@@ -323,6 +338,7 @@ namespace Sabanishi.MainGame
                             {
                                 _isUpCollide = true;
                             }
+
                             newPos.y = otherPos.y - otherSize.y / 2f - colliderSize.y / 2f;
                         }
                     }
@@ -341,6 +357,7 @@ namespace Sabanishi.MainGame
                             {
                                 _isLeftCollide = true;
                             }
+
                             newPos.x = otherPos.x + otherSize.x / 2f + colliderSize.x / 2f;
                         }
                     }
@@ -354,6 +371,7 @@ namespace Sabanishi.MainGame
                             {
                                 _isRightCollide = true;
                             }
+
                             newPos.x = otherPos.x - otherSize.x / 2f - colliderSize.x / 2f;
                         }
                     }
@@ -386,13 +404,14 @@ namespace Sabanishi.MainGame
         {
             if (_isPainted)
             {
-                if(Input.GetButtonDown("Horizontal")||Input.GetButtonDown("Vertical"))
+                if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
                 {
                     _isPainted = false;
                 }
             }
+
             if (_isPainted) return;
-            
+
             Vector3 newSpeedVec = _speedVec;
             if (NowBodyDirection.Value is Direction.Down or Direction.Up)
             {
