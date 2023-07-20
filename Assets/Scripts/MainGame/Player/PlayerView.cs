@@ -2,7 +2,6 @@ using System;
 using MainGame.Stage;
 using UniRx;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Sabanishi.MainGame
 {
@@ -123,13 +122,8 @@ namespace Sabanishi.MainGame
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(bodyDirection), bodyDirection, null);
             }
-
-            return CheckIsAir((Vector2)_transform.position + offset, direction, checkDirection);
-        }
-
-        public bool CheckIsAir(Vector2 pos,Vector2 dir,Direction checkDirection)
-        {
-            var hit = Physics2D.Raycast(pos, dir, _rayLength,
+            
+            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, direction, _rayLength,
                 LayerMask.GetMask("Block"));
             
             if (hit.collider == null) return true;
@@ -145,15 +139,60 @@ namespace Sabanishi.MainGame
         public BlockChip CheckCanPaint(Direction bodyDirection,Direction checkDirection)
         {
             var offset = GetOffset(bodyDirection);
-            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(checkDirection), _rayLength*2,
+
+            BlockChip chip;
+            
+            chip = CheckCanPaint((Vector2)_transform.position + offset, checkDirection);
+            if (chip != null) return chip;
+
+            Vector2 dir;
+            if (bodyDirection == Direction.Down || bodyDirection == Direction.Up)
+            {
+                if (checkDirection == Direction.Down || checkDirection == Direction.Up)
+                {
+                    dir = new Vector2(_colliderSize.x / 2.1f, 0);
+                }
+                else
+                {
+                    dir = new Vector2(0, _colliderSize.y / 2.1f);
+                }
+            }
+            else
+            {
+                if (checkDirection == Direction.Down || checkDirection == Direction.Up)
+                {
+                    dir = new Vector2(_colliderSize.y / 2.1f, 0);
+                }
+                else
+                {
+                    dir = new Vector2(0, _colliderSize.x / 2.1f);
+                }
+            }
+            
+            chip = CheckCanPaint((Vector2)_transform.position + offset + dir, checkDirection);
+            if (chip != null) return chip;
+            
+            chip = CheckCanPaint((Vector2)_transform.position + offset - dir, checkDirection);
+            if (chip != null) return chip;
+                
+            return null;
+        }
+
+        private BlockChip CheckCanPaint(Vector2 pos,Direction checkDirection)
+        {
+            var hit = Physics2D.Raycast(pos, ConvertToVector(checkDirection), _rayLength*2,
                 LayerMask.GetMask("Block"));
             if(hit.collider == null) return null;
-
-            //TODO:ペンキ済みか、ペンキを塗れるかのチェック
+            
             var chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return null;
+            
+            if (chip.CanPaint(CalcUtils.ReverseDirection(checkDirection)))
+            {
+                return chip;
+            }
 
-            return chip;
+            return null;
         }
 
         private Vector2 ConvertToVector(Direction dir)

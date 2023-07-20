@@ -98,6 +98,17 @@ namespace Sabanishi.MainGame
             {
                 _isStickJump = false;
             }
+            
+            if (Input.GetButton("Paint"))
+            {
+                _isPaintMode.Value = true;
+                _speedVec.x = 0;
+                if (_speedVec.y > 0) _speedVec.y = 0;
+            }
+            else
+            {
+                _isPaintMode.Value = false;
+            }
 
             _pos.Value = beforePos;
             _isAir.Value = isAir;
@@ -140,14 +151,6 @@ namespace Sabanishi.MainGame
         private void InputPaint()
         {
             if(_nowSelectedChip!=null)_nowSelectedChip.SetPaintSignActive(false);
-            
-            if (Input.GetButtonDown("Paint"))
-            {
-                _isPaintMode.Value = !_isPaintMode.Value;
-                _speedVec.x = 0;
-                if (_speedVec.y > 0) _speedVec.y = 0;
-                return;
-            }
 
             if (!_isPaintMode.Value) return;
             
@@ -155,18 +158,15 @@ namespace Sabanishi.MainGame
             var x = Input.GetAxisRaw("Horizontal");
             var y = Input.GetAxisRaw("Vertical");
             var direction = Direction.None;
-            var reverseDirection = Direction.None;
             switch (x)
             {
                 case > 0:
                     //右
                     direction=Direction.Right;
-                    reverseDirection = Direction.Left;
                     break;
                 case < 0:
                     //左
                     direction=Direction.Left;
-                    reverseDirection = Direction.Right;
                     break;
             }
 
@@ -175,12 +175,10 @@ namespace Sabanishi.MainGame
                 case > 0:
                     //上
                     direction=Direction.Up;
-                    reverseDirection = Direction.Down;
                     break;
                 case < 0:
                     //下
                     direction=Direction.Down;
-                    reverseDirection = Direction.Up;
                     break;
             }
 
@@ -189,16 +187,13 @@ namespace Sabanishi.MainGame
             BlockChip chip=CheckCanPaintAction?.Invoke(_bodyDirection.Value,direction);
             if (chip != null)
             {
-                if (chip.CanPaint(reverseDirection))
-                {
-                    chip.SetPaintSignActive(true);
-                    _nowSelectedChip = chip;
+                chip.SetPaintSignActive(true);
+                _nowSelectedChip = chip;
                     
-                    //Directionキーが押されたことを検知して、ペイントする
-                    if (Input.GetButtonDown("Decide"))
-                    {
-                        chip.Paint(reverseDirection);
-                    }
+                //Directionキーが押されたことを検知して、ペイントする
+                if (Input.GetButtonDown("Decide"))
+                {
+                    chip.Paint(CalcUtils.ReverseDirection(direction));
                 }
             }
         }
