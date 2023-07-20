@@ -103,6 +103,14 @@ namespace Sabanishi.MainGame
             {
                 _isStickJump = false;
             }
+            
+            if (_isPainted)
+            {
+                if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
+                {
+                    _isPainted = false;
+                }
+            }
 
             _pos.Value = beforePos;
             _isAir.Value = isAir;
@@ -402,14 +410,6 @@ namespace Sabanishi.MainGame
         /// </summary>
         private void InputMove()
         {
-            if (_isPainted)
-            {
-                if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
-                {
-                    _isPainted = false;
-                }
-            }
-
             if (_isPainted) return;
 
             Vector3 newSpeedVec = _speedVec;
