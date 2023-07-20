@@ -46,8 +46,7 @@ namespace Sabanishi.MainGame
         {
             int x = addEvent.Index % _width;
             int y = addEvent.Index / _width;
-            Debug.Log($"Add:{x},{y},{addEvent.Value}");
-            
+
             CreateMapChip(x,y,addEvent.Value);
         }
 

@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -14,8 +12,7 @@ namespace Sabanishi.MainGame
     {
         [SerializeField] private PlayerPresenter _playerPresenterPrefab;
         [SerializeField] private StagePresenter _stagePresenter;
-
-        [SerializeField] private Tilemap _tmpTileMap;
+        
         private PlayerPresenter _player;
         
         private Dictionary<string, string> _stageTilemapPathDict = new()

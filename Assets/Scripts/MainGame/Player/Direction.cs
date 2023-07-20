@@ -4,8 +4,8 @@ namespace Sabanishi.MainGame
     /// 体の向き(重力の向き)
     /// Downの時、通常と同じ
     /// </summary>
-    public enum BodyDirection
+    public enum Direction
     {
-        Down,Up,Left,Right
+        Down,Up,Left,Right,None
     }
 }

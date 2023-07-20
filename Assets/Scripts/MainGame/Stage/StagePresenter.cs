@@ -57,8 +57,14 @@ namespace Sabanishi.MainGame.Stage
                     {
                         switch (tile.name)
                         {
-                            case "Block":
-                                chipData[x, y] = ChipEnum.Block;
+                            case "Floor":
+                                chipData[x, y] = ChipEnum.Floor;
+                                break;
+                            case "CanPaintBlock":
+                                chipData[x, y] = ChipEnum.CanPaintBlock;
+                                break;
+                            case "CannotPaintBlock":
+                                chipData[x, y] = ChipEnum.CannotPaintBlock;
                                 break;
                             case "Start":
                                 _playerRespawnPos = new Vector3(x, y, 0);

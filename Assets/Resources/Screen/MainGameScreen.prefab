@@ -146,6 +146,10 @@ MonoBehaviour:
     list:
     - Key: 1
       Value: {fileID: 8741425765121618790, guid: b0b4fce969c9547c782330d9e86ab950, type: 3}
+    - Key: 2
+      Value: {fileID: 4736913970255817222, guid: af8608dfa5d124162b543c34e7549c37, type: 3}
+    - Key: 3
+      Value: {fileID: 130888893021406963, guid: ff02ddc5da89d449e8dbaec8d466db74, type: 3}
 --- !u!1 &7040756783581663630
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,4 +212,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerPresenterPrefab: {fileID: 4562088799554863496, guid: 6317b856b5e274c95be24284cc4c3590, type: 3}
   _stagePresenter: {fileID: 8888111704750998369}
-  _tmpTileMap: {fileID: 0}
