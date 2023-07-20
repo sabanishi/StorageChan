@@ -45,6 +45,7 @@ namespace Sabanishi.MainGame
         private bool _isRightCollide, _isLeftCollide, _isUpCollide, _isDownCollide;
         private bool _isStickJump; //地上以外からジャンプしたかどうか
         private BlockChip _nowSelectedChip;
+        private bool _isPainted;
 
         public Func<Direction, Direction,BlockChip> CheckCanPaintAction;
         public Func<Direction,bool> CheckIsAir;
@@ -98,17 +99,6 @@ namespace Sabanishi.MainGame
             {
                 _isStickJump = false;
             }
-            
-            if (Input.GetButton("Paint"))
-            {
-                _isPaintMode.Value = true;
-                _speedVec.x = 0;
-                if (_speedVec.y > 0) _speedVec.y = 0;
-            }
-            else
-            {
-                _isPaintMode.Value = false;
-            }
 
             _pos.Value = beforePos;
             _isAir.Value = isAir;
@@ -124,6 +114,17 @@ namespace Sabanishi.MainGame
             SpeedUpdate();
             CheckNextStepIsAir(isAir);
             Rotate();
+            
+            if (Input.GetButton("Paint"))
+            {
+                _isPaintMode.Value = true;
+                _speedVec.x = 0;
+                if (_speedVec.y > 0) _speedVec.y = 0;
+            }
+            else
+            {
+                _isPaintMode.Value = false;
+            }
         }
 
         /// <summary>
@@ -191,9 +192,10 @@ namespace Sabanishi.MainGame
                 _nowSelectedChip = chip;
                     
                 //Directionキーが押されたことを検知して、ペイントする
-                if (Input.GetButtonDown("Decide"))
+                if (Input.GetButtonUp("Paint"))
                 {
                     chip.Paint(CalcUtils.ReverseDirection(direction));
+                    _isPainted = true;
                 }
             }
         }
@@ -382,6 +384,15 @@ namespace Sabanishi.MainGame
         /// </summary>
         private void InputMove()
         {
+            if (_isPainted)
+            {
+                if(Input.GetButtonDown("Horizontal")||Input.GetButtonDown("Vertical"))
+                {
+                    _isPainted = false;
+                }
+            }
+            if (_isPainted) return;
+            
             Vector3 newSpeedVec = _speedVec;
             if (NowBodyDirection.Value is Direction.Down or Direction.Up)
             {
