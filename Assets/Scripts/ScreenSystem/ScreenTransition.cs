@@ -8,6 +8,9 @@ namespace Sabanihsi.ScreenSystem
     public class ScreenTransition:MonoBehaviour
     {
         [SerializeField] private ScreenEnum _loadScreenEnum;
+
+        private static ScreenTransition _instance;
+        public static ScreenTransition Instance => _instance;
         
         /// <summary>
         /// 画面遷移中ならばtrue
@@ -24,6 +27,7 @@ namespace Sabanihsi.ScreenSystem
 
         private void Start()
         {
+            _instance = this;
             Move(_loadScreenEnum).Forget();
         }
 
