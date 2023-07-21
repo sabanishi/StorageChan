@@ -1,3 +1,4 @@
+using MainGame.Stage;
 using Sabanishi.Common;
 using UniRx;
 using UnityEngine;
@@ -28,7 +29,7 @@ namespace Sabanishi.MainGame
         /// ModelのStageDataが変更されたときに呼ばれる
         /// </summary>
         /// <param name="replaceEvent"></param>
-        public void OnStageChipReplaced(CollectionReplaceEvent<ChipEnum> replaceEvent)
+        public void OnStageChipReplaced(CollectionReplaceEvent<ChipData> replaceEvent)
         {
             int x = replaceEvent.Index % _width;
             int y = replaceEvent.Index / _width;
@@ -41,8 +42,7 @@ namespace Sabanishi.MainGame
         /// <summary>
         /// ModelのStageDataに要素が追加されたときに呼ばれる
         /// </summary>
-        /// <param name="addEvent"></param>
-        public void OnStageChipAdded(CollectionAddEvent<ChipEnum> addEvent)
+        public void OnStageChipAdded(CollectionAddEvent<ChipData> addEvent)
         {
             int x = addEvent.Index % _width;
             int y = addEvent.Index / _width;
@@ -50,13 +50,17 @@ namespace Sabanishi.MainGame
             CreateMapChip(x,y,addEvent.Value);
         }
 
-        private void CreateMapChip(int x,int y,ChipEnum chipEnum)
+        private void CreateMapChip(int x,int y,ChipData chipData)
         {
-            if (_mapChipDict.GetDict().TryGetValue(chipEnum, out var prefab))
+            if (_mapChipDict.GetDict().TryGetValue(chipData.ChipEnum, out var prefab))
             {
                 var obj = Instantiate(prefab, _root);
                 obj.transform.localPosition = new Vector3(x, y, 0);
                 _mapChipArray[x, y] = obj;
+                if (chipData.ChipEnum is ChipEnum.CannotPaintBlock or ChipEnum.CanPaintBlock)
+                {
+                    obj.GetComponent<BlockChip>().Sprr.sprite = chipData.Image;
+                }
             }
         }
     }
