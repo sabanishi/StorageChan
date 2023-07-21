@@ -11,6 +11,8 @@ namespace MainGame.Stage
         [SerializeField] private bool _canPaint;
         [SerializeField]private PaintObjDict _paintObjDict;
         [SerializeField]private IsPaintDict _isPaintDict;
+
+        public SpriteRenderer Sprr => _sprr;
         public bool CanPaint(Direction direction)
         {
             return _canPaint && !_isPaintDict.GetDict()[direction];

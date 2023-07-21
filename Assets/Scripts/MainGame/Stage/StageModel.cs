@@ -6,8 +6,8 @@ namespace Sabanishi.MainGame.Stage
     {
         private int _stageWidth;
         private int _stageHeight;
-        private readonly ReactiveCollection<ChipEnum> _stageData;
-        public IReadOnlyReactiveCollection<ChipEnum> StageData => _stageData;
+        private readonly ReactiveCollection<ChipData> _stageData;
+        public IReadOnlyReactiveCollection<ChipData> StageData => _stageData;
 
         public StageModel(int width,int height)
         {
@@ -24,7 +24,7 @@ namespace Sabanishi.MainGame.Stage
         /// <summary>
         /// chipDataを基にステージを作成する
         /// </summary>
-        public void CreateBlock(ChipEnum[,] chipData)
+        public void CreateBlock(ChipData[,] chipData)
         {
             for (int y = 0; y < chipData.GetLength(1); y++)
             {

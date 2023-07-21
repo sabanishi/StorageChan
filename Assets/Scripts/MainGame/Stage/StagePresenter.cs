@@ -1,3 +1,4 @@
+using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -38,41 +39,37 @@ namespace Sabanishi.MainGame.Stage
         /// </summary>
         /// <param name="tilemap"></param>
         /// <returns></returns>
-        private ChipEnum[,] ConvertToChipEnumArray(Tilemap tilemap)
+        private ChipData[,] ConvertToChipEnumArray(Tilemap tilemap)
         {
             tilemap.CompressBounds();
             var bounds = tilemap.cellBounds;
-            ChipEnum[,] chipData = new ChipEnum[bounds.size.x, bounds.size.y];
+            ChipData[,] chipData = new ChipData[bounds.size.x, bounds.size.y];
             TileBase[] allBlocks = tilemap.GetTilesBlock(bounds);
             for(int x=0;x<bounds.size.x;x++)
             {
                 for(int y=0;y<bounds.size.y;y++)
                 {
                     var tile = allBlocks[x + y * bounds.size.x];
-                    if(tile is null)
+                    var chipEnum = ChipEnum.None;
+                    if(tile is not null)
                     {
-                        chipData[x, y] = ChipEnum.None;
-                    }
-                    else
-                    {
-                        switch (tile.name)
+                        if (tile.name.Contains("Floor"))
                         {
-                            case "Floor":
-                                chipData[x, y] = ChipEnum.Floor;
-                                break;
-                            case "CanPaintBlock":
-                                chipData[x, y] = ChipEnum.CanPaintBlock;
-                                break;
-                            case "CannotPaintBlock":
-                                chipData[x, y] = ChipEnum.CannotPaintBlock;
-                                break;
-                            case "Start":
-                                _playerRespawnPos = new Vector3(x, y, 0);
-                                break;
-                            default:
-                                Debug.LogError("Tile名が不正です");
-                                break;
+                            chipEnum = ChipEnum.CanPaintBlock;
+                        }else if (tile.name.Contains("Floor2"))
+                        {
+                            chipEnum= ChipEnum.CannotPaintBlock;   
+                        }else if (tile.name.Equals("Start"))
+                        {
+                            _playerRespawnPos = new Vector3(x, y, 0);
                         }
+                    }
+                    
+                    if (!chipEnum.Equals(ChipEnum.None))
+                    {
+                        //tileの画像を取得する
+                        var sprite = ((Tile)tile)?.sprite;
+                        chipData[x, y] = new ChipData(chipEnum, sprite);
                     }
                 }
             }
