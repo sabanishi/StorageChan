@@ -13,16 +13,11 @@ namespace Sabanishi.MainGame
         public Transform Root => _root;
         
         private GameObject[,] _mapChipArray;
-        
-        private int _width;
-        private int _height;
-        
+
         public void Initialize(int width,int height)
         {
-            _width = width;
-            _height= height;
             _root = transform;
-            _mapChipArray= new GameObject[_width, _height];
+            _mapChipArray= new GameObject[width, height];
         }
 
         /// <summary>
@@ -31,8 +26,8 @@ namespace Sabanishi.MainGame
         /// <param name="replaceEvent"></param>
         public void OnStageChipReplaced(CollectionReplaceEvent<ChipData> replaceEvent)
         {
-            int x = replaceEvent.Index % _width;
-            int y = replaceEvent.Index / _width;
+            int x = replaceEvent.NewValue.X;
+            int y = replaceEvent.NewValue.Y;
 
             Debug.Log($"Replace:{x},{y},{replaceEvent.NewValue}");
             
@@ -44,8 +39,8 @@ namespace Sabanishi.MainGame
         /// </summary>
         public void OnStageChipAdded(CollectionAddEvent<ChipData> addEvent)
         {
-            int x = addEvent.Index % _width;
-            int y = addEvent.Index / _width;
+            int x = addEvent.Value.X;
+            int y = addEvent.Value.Y;
 
             CreateMapChip(x,y,addEvent.Value);
         }
@@ -60,8 +55,22 @@ namespace Sabanishi.MainGame
                 if (chipData.ChipEnum is ChipEnum.CannotPaintBlock or ChipEnum.CanPaintBlock)
                 {
                     obj.GetComponent<BlockChip>().Sprr.sprite = chipData.Image;
+                }else if (chipData.ChipEnum is ChipEnum.Box)
+                {
+                    obj.GetComponent<Box>().Initialize(chipData);
                 }
             }
+        }
+
+        /// <summary>
+        /// ModelのStageDataから要素が削除された時に呼ばれる
+        /// </summary>
+        public void OnStageChipRemoved(CollectionRemoveEvent<ChipData> removeEvent)
+        {
+            int x= removeEvent.Value.X;
+            int y = removeEvent.Value.Y;
+            Destroy(_mapChipArray[x, y]);
+            _mapChipArray[x,y] = null;
         }
     }
     

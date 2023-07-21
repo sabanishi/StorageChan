@@ -1,18 +1,15 @@
 using UniRx;
+using UnityEngine;
 
 namespace Sabanishi.MainGame.Stage
 {
     public class StageModel
     {
-        private int _stageWidth;
-        private int _stageHeight;
         private readonly ReactiveCollection<ChipData> _stageData;
         public IReadOnlyReactiveCollection<ChipData> StageData => _stageData;
 
-        public StageModel(int width,int height)
+        public StageModel()
         {
-            _stageWidth = width;
-            _stageHeight = height;
             _stageData = new ();
         }
 
@@ -33,6 +30,16 @@ namespace Sabanishi.MainGame.Stage
                     _stageData.Add(chipData[x, y]);
                 }
             }
+        }
+
+        public void RemoveBox(ChipData chipData)
+        {
+            _stageData.Remove(chipData);
+        }
+
+        public void AddBox(ChipData chipData)
+        {
+            _stageData.Add(chipData);
         }
     }
 }

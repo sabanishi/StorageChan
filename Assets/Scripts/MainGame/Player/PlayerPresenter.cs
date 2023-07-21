@@ -1,4 +1,6 @@
+using System;
 using Cysharp.Threading.Tasks;
+using MainGame.Stage;
 using UniRx;
 using UnityEngine;
 
@@ -10,12 +12,20 @@ namespace Sabanishi.MainGame
         [SerializeField]private PlayerSurroundingCollider _surroundingCollider;
         private PlayerModel _model;
         private Transform _transform;
+        
+        private Subject<ChipData> _addBoxSubject;
+        public IObservable<ChipData> AddBoxSubject => _addBoxSubject;
+        private Subject<ChipData> _removeBoxSubject;
+        public IObservable<ChipData> RemoveBoxSubject => _removeBoxSubject;
 
         /// <summary>
         /// 初期化関数
         /// </summary>
         public void Initialize(Vector3 startPos)
         {
+            _addBoxSubject = new();
+            _removeBoxSubject= new();
+            
             _transform = transform;
             _model = new PlayerModel();
             _view.Initialize();
@@ -28,9 +38,13 @@ namespace Sabanishi.MainGame
             _model.IsPaintMode.Subscribe(_view.OnIsPaintModeChanged).AddTo(gameObject);
             _model.NowBodyDirection.Subscribe(_view.OnBodyDirectionChanged).AddTo(gameObject);
             _model.OnUpdateSpeedSubject.Subscribe(_view.OnSpeedChanged).AddTo(gameObject);
+            _model.PutBoxSubject.Subscribe(PutBox).AddTo(gameObject);
+            _model.RemoveBoxSubject.Subscribe(RemoveBox).AddTo(gameObject);
             _model.CheckCanPaintAction = _view.CheckCanPaint;
-            _model.CheckIsAir = _view.CheckIsAir;
+            _model.CheckIsAirAction = _view.CheckIsAir;
             _model.PlayPaintAction = _view.PlayPaintAnimation;
+            _model.CheckBoxAction = _view.CheckBox;
+            _model.CheckCanPutBox = _view.CheckCanPutBox;
 
             _view.PosChangeSubject.Subscribe(_model.OnPosChanged).AddTo(gameObject);
 
@@ -43,6 +57,9 @@ namespace Sabanishi.MainGame
         /// </summary>
         public void Dispose()
         {
+            _addBoxSubject.Dispose();
+            _removeBoxSubject.Dispose();
+            
             _model.Dispose();
             _view.Dispose();
             _surroundingCollider.Dispose();
@@ -52,6 +69,16 @@ namespace Sabanishi.MainGame
         {
             bool isAir = _view.CheckIsAir(_model.NowBodyDirection.Value);
             _model.Update(_transform.position,isAir);
+        }
+
+        public void PutBox(ChipData chipData)
+        {
+            _addBoxSubject.OnNext(chipData);
+        }
+
+        public void RemoveBox(ChipData chipData)
+        {
+            _removeBoxSubject.OnNext(chipData);
         }
     }
 }

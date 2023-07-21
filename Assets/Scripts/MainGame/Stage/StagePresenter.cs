@@ -1,4 +1,3 @@
-using System.Linq;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -9,18 +8,20 @@ namespace Sabanishi.MainGame.Stage
     {
         [SerializeField] private StageView _view;
         private StageModel _model;
+        public StageModel Model => _model;
         
         private Vector3 _playerRespawnPos;
 
         public void Initialize(Tilemap tilemap)
         {
             var chipData = ConvertToChipEnumArray(tilemap);
-            _model = new StageModel(chipData.GetLength(0),chipData.GetLength(1));
+            _model = new StageModel();
             _view.Initialize(chipData.GetLength(0), chipData.GetLength(1));
 
             //modelとの紐付け
             _model.StageData.ObserveAdd().Subscribe(_view.OnStageChipAdded).AddTo(gameObject);
             _model.StageData.ObserveReplace().Subscribe(_view.OnStageChipReplaced).AddTo(gameObject);
+            _model.StageData.ObserveRemove().Subscribe(_view.OnStageChipRemoved).AddTo(gameObject);
             
             _model.CreateBlock(chipData);
         }
@@ -62,6 +63,9 @@ namespace Sabanishi.MainGame.Stage
                         }else if (tile.name.Equals("Start"))
                         {
                             _playerRespawnPos = new Vector3(x, y, 0);
+                        }else if (tile.name.Equals("Box"))
+                        {
+                            chipEnum = ChipEnum.Box;
                         }
                     }
                     
@@ -69,7 +73,7 @@ namespace Sabanishi.MainGame.Stage
                     {
                         //tileの画像を取得する
                         var sprite = ((Tile)tile)?.sprite;
-                        chipData[x, y] = new ChipData(chipEnum, sprite);
+                        chipData[x, y] = new ChipData(chipEnum, sprite,x,y);
                     }
                 }
             }

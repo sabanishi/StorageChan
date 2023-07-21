@@ -7,6 +7,10 @@ namespace Sabanishi.MainGame
 {
     public class PlayerView : MonoBehaviour
     {
+        [SerializeField] private GameObject _boxSprite;
+        [SerializeField] private LayerMask _blockLayer;
+        [SerializeField] private LayerMask _boxLayer;
+
         private static readonly int IsAir = Animator.StringToHash("IsAir");
         private static readonly int IsHang = Animator.StringToHash("IsHang");
         private static readonly int YSpeed = Animator.StringToHash("ySpeed");
@@ -51,8 +55,9 @@ namespace Sabanishi.MainGame
         public void OnIsHangChanged(bool isHang)
         {
             _animator.SetBool(IsHang, isHang);
+            _boxSprite.SetActive(isHang);
         }
-        
+
         public void OnIsPaintModeChanged(bool isPaintMode)
         {
             _animator.SetBool(IsPaint, isPaintMode);
@@ -134,12 +139,11 @@ namespace Sabanishi.MainGame
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(bodyDirection), bodyDirection, null);
             }
-            
-            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, direction, _rayLength,
-                LayerMask.GetMask("Block"));
-            
+
+            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, direction, _rayLength, _blockLayer);
+
             if (hit.collider == null) return true;
-            
+
             BlockChip chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return true;
             return !chip.CanStick(checkDirection);
@@ -148,15 +152,31 @@ namespace Sabanishi.MainGame
         /// <summary>
         /// 引数の方向にペンキが使える壁があるかを調べる
         /// </summary>
-        public BlockChip CheckCanPaint(Direction bodyDirection,Direction checkDirection)
+        public BlockChip CheckCanPaint(Direction bodyDirection, Direction checkDirection)
         {
             var offset = GetOffset(bodyDirection);
 
             BlockChip chip;
-            
+
             chip = CheckCanPaint((Vector2)_transform.position + offset, checkDirection);
             if (chip != null) return chip;
 
+            var dir = CalcCheckDirectionFootPos(bodyDirection, checkDirection);
+
+            chip = CheckCanPaint((Vector2)_transform.position + offset + dir, checkDirection);
+            if (chip != null) return chip;
+
+            chip = CheckCanPaint((Vector2)_transform.position + offset - dir, checkDirection);
+            if (chip != null) return chip;
+
+            return null;
+        }
+
+        /// <summary>
+        /// 体の向きと目的方向から、目的方向の足元の横の座標へのオフセットを返す
+        /// </summary>
+        private Vector2 CalcCheckDirectionFootPos(Direction bodyDirection, Direction checkDirection)
+        {
             Vector2 dir;
             if (bodyDirection == Direction.Down || bodyDirection == Direction.Up)
             {
@@ -180,25 +200,19 @@ namespace Sabanishi.MainGame
                     dir = new Vector2(0, _colliderSize.x / 2.1f);
                 }
             }
-            
-            chip = CheckCanPaint((Vector2)_transform.position + offset + dir, checkDirection);
-            if (chip != null) return chip;
-            
-            chip = CheckCanPaint((Vector2)_transform.position + offset - dir, checkDirection);
-            if (chip != null) return chip;
-                
-            return null;
+
+            return dir;
         }
 
-        private BlockChip CheckCanPaint(Vector2 pos,Direction checkDirection)
+        private BlockChip CheckCanPaint(Vector2 pos, Direction checkDirection)
         {
-            var hit = Physics2D.Raycast(pos, ConvertToVector(checkDirection), _rayLength*2,
-                LayerMask.GetMask("Block"));
-            if(hit.collider == null) return null;
-            
+            var hit = Physics2D.Raycast(pos, ConvertToVector(checkDirection), _rayLength * 2,
+                _blockLayer);
+            if (hit.collider == null) return null;
+
             var chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return null;
-            
+
             if (chip.CanPaint(CalcUtils.ReverseDirection(checkDirection)))
             {
                 return chip;
@@ -207,20 +221,20 @@ namespace Sabanishi.MainGame
             return null;
         }
 
-        private Vector2 ConvertToVector(Direction dir)
+        private Vector2Int ConvertToVector(Direction dir)
         {
             switch (dir)
             {
                 case Direction.Down:
-                    return Vector2.down;
+                    return Vector2Int.down;
                 case Direction.Left:
-                    return Vector2.left;
+                    return Vector2Int.left;
                 case Direction.Right:
-                    return Vector2.right;
+                    return Vector2Int.right;
                 case Direction.Up:
-                    return Vector2.up;
+                    return Vector2Int.up;
                 default:
-                    return Vector2.zero;
+                    return Vector2Int.zero;
             }
         }
 
@@ -240,6 +254,82 @@ namespace Sabanishi.MainGame
                     Debug.LogError("BodyDirectionが不正です");
                     return Vector2.zero;
             }
+        }
+
+        /// <summary>
+        /// 目の前にあるハコを返す
+        /// </summary>
+        public Box CheckBox(Direction bodyDirection)
+        {
+            var offset = GetOffset(bodyDirection);
+            var checkDirection = CalcCheckDirection(bodyDirection);
+
+            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(checkDirection),
+                _rayLength * 2,
+                _boxLayer);
+            if (hit.collider == null) return null;
+            var box = hit.collider.gameObject.GetComponent<Box>();
+            if (box == null) return null;
+            return box;
+        }
+
+        /// <summary>
+        /// 目の前にハコを置けるかを返す
+        /// </summary>
+        public (bool, Vector2Int) CheckCanPutBox(Direction bodyDirection)
+        {
+            var offset = GetOffset(bodyDirection);
+            var playerPos = (Vector2)_transform.position + offset;
+            var checkPos = new Vector2Int(Mathf.RoundToInt(playerPos.x), Mathf.RoundToInt(playerPos.y));
+            var checkDirection = CalcCheckDirection(bodyDirection);
+            var hit = Physics2D.Raycast(checkPos, ConvertToVector(checkDirection),
+                1.0f, _blockLayer);
+            //目の前に何かあった場合はfalseを返す
+            if (hit.collider != null) return (false, Vector2Int.zero);
+            Vector2Int dir;
+            if (bodyDirection == Direction.Down || bodyDirection == Direction.Up)
+            {
+                if (_transform.localScale.x == 1)
+                {
+                    dir = new Vector2Int(1, 0);
+                }
+                else
+                {
+                    dir = new Vector2Int(-1, 0);
+                }
+            }
+            else
+            {
+                if (_transform.localScale.x == 1)
+                {
+                    dir = new Vector2Int(0, -1);
+                }
+                else
+                {
+                    dir = new Vector2Int(0, 1);
+                }
+            }
+
+            hit = Physics2D.Raycast(checkPos + dir, ConvertToVector(bodyDirection),
+                1.0f, _blockLayer);
+            if (hit.collider == null) return (false, Vector2Int.zero);
+
+            var chip = hit.collider.gameObject.GetComponent<BlockChip>();
+            if (chip == null) return (false, Vector2Int.zero);
+
+            var canPut = chip.CanStick(CalcUtils.ReverseDirection(bodyDirection));
+            if (!canPut) return (false, Vector2Int.zero);
+
+            var chipPos = chip.gameObject.transform.position;
+            var pos = new Vector2Int((int)chipPos.x, (int)chipPos.y) - ConvertToVector(bodyDirection);
+            return (true, pos);
+        }
+
+        private Direction CalcCheckDirection(Direction bodyDirection)
+        {
+            return _transform.localScale.x == 1
+                ? CalcUtils.ReverseRotateDirection(bodyDirection)
+                : CalcUtils.RotateDirection(bodyDirection);
         }
     }
 }
