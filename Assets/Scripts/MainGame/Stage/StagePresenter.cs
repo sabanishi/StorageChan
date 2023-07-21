@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UniRx;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -14,6 +15,7 @@ namespace Sabanishi.MainGame.Stage
         private Vector2 _mapSize;
         public Vector2 MapSize => _mapSize;
 
+        // ReSharper disable Unity.PerformanceAnalysis
         public void Initialize(Tilemap tilemap)
         {
             var chipData = ConvertToChipEnumArray(tilemap);
@@ -25,6 +27,8 @@ namespace Sabanishi.MainGame.Stage
             _model.StageData.ObserveAdd().Subscribe(_view.OnStageChipAdded).AddTo(gameObject);
             _model.StageData.ObserveReplace().Subscribe(_view.OnStageChipReplaced).AddTo(gameObject);
             _model.StageData.ObserveRemove().Subscribe(_view.OnStageChipRemoved).AddTo(gameObject);
+            _model.DropBoxSubject.Subscribe(_view.DropBox).AddTo(gameObject);
+            _model.GetChipObject = _view.GetBlock;
             
             _model.CreateBlock(chipData);
         }
