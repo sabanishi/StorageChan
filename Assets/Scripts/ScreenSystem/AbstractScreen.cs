@@ -32,7 +32,7 @@ namespace Sabanihsi.ScreenSystem
         /// <param name="token"></param>
         public virtual async UniTask OpenAnimation(CancellationToken token)
         {
-            
+            await TmpScreenAnimation.Instance.FadeOut(0.5f,token);
         }
         
         /// <summary>
@@ -41,7 +41,7 @@ namespace Sabanihsi.ScreenSystem
         /// <param name="token"></param>
         public virtual async UniTask CloseAnimation(CancellationToken token)
         {
-            
+            await TmpScreenAnimation.Instance.FadeIn(0.5f,token);
         }
 
         public async UniTask Open(CancellationToken token)

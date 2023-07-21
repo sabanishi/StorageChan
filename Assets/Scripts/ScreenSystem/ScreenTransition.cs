@@ -25,9 +25,21 @@ namespace Sabanihsi.ScreenSystem
 
         private AbstractScreen _nowScreen;
 
+        private void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+
         private void Start()
         {
-            _instance = this;
             Move(_loadScreenEnum).Forget();
         }
 
