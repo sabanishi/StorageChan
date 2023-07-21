@@ -8,6 +8,9 @@ namespace Sabanihsi.ScreenSystem
     public class ScreenTransition:MonoBehaviour
     {
         [SerializeField] private ScreenEnum _loadScreenEnum;
+
+        private static ScreenTransition _instance;
+        public static ScreenTransition Instance => _instance;
         
         /// <summary>
         /// 画面遷移中ならばtrue
@@ -21,6 +24,19 @@ namespace Sabanihsi.ScreenSystem
         };
 
         private AbstractScreen _nowScreen;
+
+        private void Awake()
+        {
+            if (_instance == null)
+            {
+                _instance = this;
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
 
         private void Start()
         {

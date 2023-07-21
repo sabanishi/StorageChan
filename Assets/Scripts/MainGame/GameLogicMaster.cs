@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UniRx;
 using UnityEngine;
@@ -63,6 +65,14 @@ namespace Sabanishi.MainGame
             }
 
             return true;
+        }
+
+        private void Update()
+        {
+            if (Input.GetButtonDown("Reset"))
+            {
+                ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
+            }
         }
     }
 }

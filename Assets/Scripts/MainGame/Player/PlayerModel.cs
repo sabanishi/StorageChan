@@ -420,7 +420,6 @@ namespace Sabanishi.MainGame
                         //左方向に戻す
                         if (otherPos.x - otherSize.x / 2f - _beforePos.x + colliderSize.x / 2f > 0)
                         {
-                            Debug.Log("B");
                             if (chip.CanStick(Direction.Left))
                             {
                                 _isRightCollide = true;
