@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sabanihsi.ScreenSystem;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Sabanishi.MainGame
 {
@@ -9,15 +10,19 @@ namespace Sabanishi.MainGame
     {
         [SerializeField] private GameLogicMaster _gameLogic;
         
+        private StageData _stageData;
+        
         protected override void InitializeInternal(Object data,CancellationToken token)
         {
-            _gameLogic.Initialize();
+            var stageData = (StageData)data;
+            _stageData = stageData;
+            _gameLogic.Initialize(stageData);
         }
         
         protected override Object DisposeInternal()
         {
             _gameLogic.Dispose();
-            return null;
+            return _stageData;
         }
         
         protected override async UniTask OpenInternal(CancellationToken token)

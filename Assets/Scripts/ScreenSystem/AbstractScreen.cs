@@ -1,6 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Sabanihsi.ScreenSystem
 {

@@ -27,11 +27,11 @@ namespace Sabanishi.MainGame
         /// <summary>
         /// Screen生成時に呼ばれる処理
         /// </summary>
-        public void Initialize()
+        public void Initialize(StageData stageData)
         {
             _player = Instantiate(_playerPresenterPrefab,transform);
 
-            if (TryGetStageTilemap("Tmp", out var tilemap))
+            if (TryGetStageTilemap(stageData.StageName, out var tilemap))
             {
                 _stagePresenter.Initialize(tilemap);
             }
