@@ -278,31 +278,13 @@ GameObject:
   - component: {fileID: 1959254614}
   - component: {fileID: 1959254613}
   - component: {fileID: 1959254612}
-  - component: {fileID: 1959254611}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: StageAnimatonCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1959254611
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959254610}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &1959254612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -398,7 +380,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fef0a6dfc9e94b7882d2ae3552dce541, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _loadScreenEnum: 1
+  _loadScreenEnum: 0
 --- !u!4 &2066885053
 Transform:
   m_ObjectHideFlags: 0
