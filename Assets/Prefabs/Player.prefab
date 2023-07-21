@@ -210,7 +210,7 @@ MonoBehaviour:
   _boxSprite: {fileID: 3960145405493858928}
   _blockLayer:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 448
   _boxLayer:
     serializedVersion: 2
     m_Bits: 128

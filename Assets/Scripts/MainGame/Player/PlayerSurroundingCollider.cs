@@ -11,6 +11,8 @@ namespace Sabanishi.MainGame
     {
         private const string BlockTag = "Block";
         private const string BoxTag = "Box";
+        private const string BorderTag = "Border";
+        
         private Subject<BoxCollider2D> _addSubject;
         public IObservable<BoxCollider2D> OnAdd => _addSubject;
         private Subject<BoxCollider2D> _removeSubject;
@@ -30,7 +32,9 @@ namespace Sabanishi.MainGame
         
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.gameObject.tag.Equals(BlockTag)||other.gameObject.tag.Equals(BoxTag))
+            if (other.gameObject.tag.Equals(BlockTag)||
+                other.gameObject.tag.Equals(BoxTag)||
+                other.gameObject.tag.Equals(BorderTag))
             {
                 _addSubject?.OnNext(other as BoxCollider2D);
             }

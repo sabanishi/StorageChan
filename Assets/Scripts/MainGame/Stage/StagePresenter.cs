@@ -11,11 +11,14 @@ namespace Sabanishi.MainGame.Stage
         public StageModel Model => _model;
         
         private Vector3 _playerRespawnPos;
+        private Vector2 _mapSize;
+        public Vector2 MapSize => _mapSize;
 
         public void Initialize(Tilemap tilemap)
         {
             var chipData = ConvertToChipEnumArray(tilemap);
             _model = new StageModel();
+            _mapSize=new Vector2(chipData.GetLength(0),chipData.GetLength(1));
             _view.Initialize(chipData.GetLength(0), chipData.GetLength(1));
 
             //modelとの紐付け

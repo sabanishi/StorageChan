@@ -13,6 +13,7 @@ namespace Sabanishi.MainGame
     {
         [SerializeField] private PlayerPresenter _playerPresenterPrefab;
         [SerializeField] private StagePresenter _stagePresenter;
+        [SerializeField] private MainCamera _mainCamera;
         
         private PlayerPresenter _player;
         
@@ -36,6 +37,8 @@ namespace Sabanishi.MainGame
             _player.Initialize(_stagePresenter.GetPlayerRespawnPos());
             _player.AddBoxSubject.Subscribe(_stagePresenter.Model.AddBox).AddTo(gameObject);
             _player.RemoveBoxSubject.Subscribe(_stagePresenter.Model.RemoveBox).AddTo(gameObject);
+            
+            _mainCamera.Initialize(_player.transform,_stagePresenter.MapSize);
         }
 
         public void Dispose()
