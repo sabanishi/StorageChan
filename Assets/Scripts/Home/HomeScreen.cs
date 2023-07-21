@@ -1,6 +1,7 @@
 using System.Threading;
 using Sabanihsi.ScreenSystem;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Sabanishi.Home
 {
