@@ -31,7 +31,7 @@ namespace Sabanishi.MainGame
             _animator = GetComponent<Animator>();
             var collider = GetComponent<BoxCollider2D>();
             var size = collider.size;
-            _rayLength = size.y / 2;
+            _rayLength = size.y / 1.8f;
             _colliderOffset = collider.offset;
             _colliderSize = size;
             _posChangeSubject = new();
@@ -115,38 +115,17 @@ namespace Sabanishi.MainGame
         public bool CheckIsAir(Direction bodyDirection)
         {
             //足元に何もない場合、空中にいると判定する
-            Vector2 direction;
             Vector2 offset = GetOffset(bodyDirection);
-            Direction checkDirection;
 
-            switch (bodyDirection)
-            {
-                case Direction.Down:
-                    direction = Vector2.down;
-                    checkDirection = Direction.Up;
-                    break;
-                case Direction.Up:
-                    direction = Vector2.up;
-                    checkDirection = Direction.Down;
-                    break;
-                case Direction.Right:
-                    direction = Vector2.right;
-                    checkDirection = Direction.Left;
-                    break;
-                case Direction.Left:
-                    direction = Vector2.left;
-                    checkDirection = Direction.Right;
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(bodyDirection), bodyDirection, null);
-            }
-
-            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, direction, _rayLength, _blockLayer);
-
+            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(bodyDirection), _rayLength, _blockLayer);
+            Debug.Log("Pos: "+((Vector2)_transform.position + offset));
+            Debug.Log("Direction: "+ConvertToVector(bodyDirection));
+            
+            
             if (hit.collider == null) return true;
-
             BlockChip chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return true;
-            return !chip.CanStick(checkDirection);
+            return !chip.CanStick(CalcUtils.ReverseDirection(bodyDirection));
         }
 
         /// <summary>
@@ -156,9 +135,7 @@ namespace Sabanishi.MainGame
         {
             var offset = GetOffset(bodyDirection);
 
-            BlockChip chip;
-
-            chip = CheckCanPaint((Vector2)_transform.position + offset, checkDirection);
+            var chip = CheckCanPaint((Vector2)_transform.position + offset, checkDirection);
             if (chip != null) return chip;
 
             var dir = CalcCheckDirectionFootPos(bodyDirection, checkDirection);
