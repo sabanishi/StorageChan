@@ -89,9 +89,15 @@ namespace Sabanishi.MainGame
             {
                 case Direction.Down:
                     _transform.localEulerAngles = new Vector3(0, 0, 0);
+                    _posChangeSubject.OnNext(_transform.position +
+                                             Vector3.up * (_colliderSize.y - _colliderSize.x) / 2 +
+                                             new Vector3(diff, diff, 0));
                     break;
                 case Direction.Up:
                     _transform.localEulerAngles = new Vector3(0, 0, 180);
+                    _posChangeSubject.OnNext(_transform.position +
+                                             Vector3.down * (_colliderSize.y - _colliderSize.x) / 2 +
+                                             new Vector3(diff, diff, 0));
                     break;
                 case Direction.Right:
                     _transform.localEulerAngles = new Vector3(0, 0, 90);
@@ -118,10 +124,7 @@ namespace Sabanishi.MainGame
             Vector2 offset = GetOffset(bodyDirection);
 
             var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(bodyDirection), _rayLength, _blockLayer);
-            Debug.Log("Pos: "+((Vector2)_transform.position + offset));
-            Debug.Log("Direction: "+ConvertToVector(bodyDirection));
-            
-            
+
             if (hit.collider == null) return true;
             BlockChip chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return true;
@@ -266,7 +269,8 @@ namespace Sabanishi.MainGame
             Vector2Int dir;
             if (bodyDirection == Direction.Down || bodyDirection == Direction.Up)
             {
-                if (_transform.localScale.x == 1)
+                if ((_transform.localScale.x == 1&&bodyDirection==Direction.Down) ||
+                    (_transform.localScale.x == -1&&bodyDirection==Direction.Up))
                 {
                     dir = new Vector2Int(1, 0);
                 }
@@ -277,7 +281,8 @@ namespace Sabanishi.MainGame
             }
             else
             {
-                if (_transform.localScale.x == 1)
+                if ((_transform.localScale.x == 1&&bodyDirection==Direction.Left) ||
+                    (_transform.localScale.x == -1&&bodyDirection==Direction.Right))
                 {
                     dir = new Vector2Int(0, -1);
                 }

@@ -152,10 +152,10 @@ namespace Sabanishi.MainGame
 
         private void InputHang()
         {
+            if (_isAir.Value) return;
             if (_isHang.Value)
             {
                 //ハコを持っている際の処理
-                if (_isAir.Value) return;
                 var tuple = CheckCanPutBox.Invoke(_bodyDirection.Value);
                 if (tuple.Item1)
                 {
