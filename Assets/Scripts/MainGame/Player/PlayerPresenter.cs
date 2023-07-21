@@ -53,7 +53,5 @@ namespace Sabanishi.MainGame
             bool isAir = _view.CheckIsAir(_model.NowBodyDirection.Value);
             _model.Update(_transform.position,isAir);
         }
-        
-        
     }
 }
