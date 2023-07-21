@@ -4,6 +4,8 @@ using Cysharp.Threading.Tasks;
 using MainGame.Stage;
 using UniRx;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Box = MainGame.Stage.Box;
 
 namespace Sabanishi.MainGame
 {
@@ -35,9 +37,10 @@ namespace Sabanishi.MainGame
 
         private Subject<Vector3> _onUpdateSpeedSubject;
         public IObservable<Vector3> OnUpdateSpeedSubject => _onUpdateSpeedSubject;
-
-        private Subject<Direction> _checkIsAirSubject;
-        public IObservable<Direction> CheckIsAirSubject => _checkIsAirSubject;
+        private Subject<ChipData> _putBoxSubject;
+        public IObservable<ChipData> PutBoxSubject => _putBoxSubject;
+        private Subject<ChipData> _removeBoxSubject;
+        public IObservable<ChipData> RemoveBoxSubject => _removeBoxSubject;
 
         #endregion
 
@@ -50,7 +53,9 @@ namespace Sabanishi.MainGame
         private bool _isPainted;
 
         public Func<Direction, Direction, BlockChip> CheckCanPaintAction;
-        public Func<Direction, bool> CheckIsAir;
+        public Func<Direction, bool> CheckIsAirAction;
+        public Func<Direction, Box> CheckBoxAction;
+        public Func<Direction, (bool,Vector2Int)> CheckCanPutBox;
         public Action PlayPaintAction;
 
         public PlayerModel()
@@ -63,6 +68,8 @@ namespace Sabanishi.MainGame
 
             _nearChipColliders = new();
             _onUpdateSpeedSubject = new();
+            _putBoxSubject = new();
+            _removeBoxSubject = new();
         }
 
         public void Initialize(Vector3 startPos, BoxCollider2D myCollider)
@@ -88,6 +95,8 @@ namespace Sabanishi.MainGame
             _isPaintMode.Dispose();
 
             _onUpdateSpeedSubject.Dispose();
+            _putBoxSubject.Dispose();
+            _removeBoxSubject.Dispose();
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -115,6 +124,7 @@ namespace Sabanishi.MainGame
             _pos.Value = beforePos;
             _isAir.Value = isAir;
             if (_canOperate) InputPaint();
+            if(_canOperate)InputHang();
             if (!_isPaintMode.Value && _canOperate) InputMove();
             ApplyGravity();
             if (!_isPaintMode.Value && _canOperate) InputJump();
@@ -140,13 +150,48 @@ namespace Sabanishi.MainGame
             }
         }
 
+        private void InputHang()
+        {
+            if (_isAir.Value) return;
+            if (_isHang.Value)
+            {
+                //ハコを持っている際の処理
+                var tuple = CheckCanPutBox.Invoke(_bodyDirection.Value);
+                if (tuple.Item1)
+                {
+                    if (Input.GetButtonDown("Decide"))
+                    {
+                        //ハコを置く
+                        _isHang.Value = false;
+                        Vector2Int putPos=tuple.Item2;
+                        _putBoxSubject.OnNext(new ChipData(ChipEnum.Box,null,putPos.x,putPos.y));
+                    }
+                }
+            }
+            else
+            {
+                //ハコを持っていない際の処理
+                var box = CheckBoxAction?.Invoke(_bodyDirection.Value);
+                if (box != null)
+                {
+                    if (Input.GetButtonDown("Decide"))
+                    {
+                        //ハコを持つ
+                        _isHang.Value = true;
+                        _removeBoxSubject.OnNext(box.ChipData);
+                    }
+                }
+            }
+        }
+
         /// <summary>
         /// 次の足場が空中かどうかをチェックする
         /// </summary>
         private void CheckNextStepIsAir(bool isBeforeAir)
         {
             if (isBeforeAir) return;
-            if (CheckIsAir.Invoke(_bodyDirection.Value))
+            if (_bodyDirection.Value.Equals(Direction.Down)) return;
+            if (CheckIsAirAction.Invoke(_bodyDirection.Value))
             {
                 if (_bodyDirection.Value is Direction.Down or Direction.Up)
                 {

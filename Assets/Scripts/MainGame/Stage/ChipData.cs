@@ -1,19 +1,20 @@
-using Sabanishi.MainGame;
 using UnityEngine;
 
 namespace Sabanishi.MainGame
 {
     public struct ChipData
     {
-        private ChipEnum _chipEnum;
-        private Sprite _image;
-        public ChipEnum ChipEnum => _chipEnum;
-        public Sprite Image => _image;
+        public ChipEnum ChipEnum { get; }
+        public Sprite Image { get; }
+        public int X { get; }
+        public int Y { get; }
 
-        public ChipData(ChipEnum chipEnum, Sprite image)
+        public ChipData(ChipEnum chipEnum, Sprite image,int x,int y)
         {
-            _chipEnum = chipEnum;
-            _image = image;
+            ChipEnum = chipEnum;
+            Image = image;
+            X = x;
+            Y = y;
         }
     }
 }

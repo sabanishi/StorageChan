@@ -9,7 +9,8 @@ namespace Sabanishi.MainGame
     /// </summary>
     public class PlayerSurroundingCollider:MonoBehaviour
     {
-        private const string ChipTag = "Block";
+        private const string BlockTag = "Block";
+        private const string BoxTag = "Box";
         private Subject<BoxCollider2D> _addSubject;
         public IObservable<BoxCollider2D> OnAdd => _addSubject;
         private Subject<BoxCollider2D> _removeSubject;
@@ -29,7 +30,7 @@ namespace Sabanishi.MainGame
         
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.gameObject.tag.Equals(ChipTag))
+            if (other.gameObject.tag.Equals(BlockTag)||other.gameObject.tag.Equals(BoxTag))
             {
                 _addSubject?.OnNext(other as BoxCollider2D);
             }
@@ -37,7 +38,7 @@ namespace Sabanishi.MainGame
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            if (other.gameObject.tag.Equals(ChipTag))
+            if (other.gameObject.tag.Equals(BlockTag)||other.gameObject.tag.Equals(BoxTag))
             {
                 _removeSubject?.OnNext(other as BoxCollider2D);
             }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Sabanishi.MainGame.Stage;
+using UniRx;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -33,6 +34,8 @@ namespace Sabanishi.MainGame
             }
             
             _player.Initialize(_stagePresenter.GetPlayerRespawnPos());
+            _player.AddBoxSubject.Subscribe(_stagePresenter.Model.AddBox).AddTo(gameObject);
+            _player.RemoveBoxSubject.Subscribe(_stagePresenter.Model.RemoveBox).AddTo(gameObject);
         }
 
         public void Dispose()
