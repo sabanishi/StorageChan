@@ -165,6 +165,13 @@ namespace Sabanishi.MainGame
                         _isHang.Value = false;
                         Vector2Int putPos=tuple.Item2;
                         _putBoxSubject.OnNext(new ChipData(ChipEnum.Box,null,putPos.x,putPos.y));
+                        UniTask.Void(async () =>
+                        {
+                            _canOperate = false;
+                            PlayPaintAction?.Invoke();
+                            await UniTask.Delay(300);
+                            _canOperate = true;
+                        });
                     }
                 }
             }
