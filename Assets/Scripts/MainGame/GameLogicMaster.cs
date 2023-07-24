@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Cysharp.Threading.Tasks.Triggers;
@@ -21,6 +22,7 @@ namespace Sabanishi.MainGame
         
         private PlayerPresenter _player;
         private int _doorX;
+        private Action _gotoStageSelectAction;
         
         private Dictionary<string, string> _stageTilemapPathDict = new()
         {
@@ -30,8 +32,9 @@ namespace Sabanishi.MainGame
         /// <summary>
         /// Screen生成時に呼ばれる処理
         /// </summary>
-        public void Initialize(StageData stageData)
+        public void Initialize(StageData stageData,Action gotoStageSelectAction)
         {
+            _gotoStageSelectAction = gotoStageSelectAction;
             _player = Instantiate(_playerPresenterPrefab,transform);
 
             if (TryGetStageTilemap(stageData.StageName, out var tilemap))
@@ -83,7 +86,7 @@ namespace Sabanishi.MainGame
             {
                 //TODO:クリア処理
                 _player.Model.SetCanOperate(false);
-                
+                _gotoStageSelectAction?.Invoke();
                 async UniTaskVoid Clear()
                 {
                     await UniTask.Delay(500);

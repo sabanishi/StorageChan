@@ -10,10 +10,11 @@ namespace Sabanihsi.ScreenSystem
     /// </summary>
     public class AbstractScreen:MonoBehaviour
     {
+        protected StageData _stageData;
         /// <summary>
         /// Screen生成時の処理
         /// </summary>
-        public void Initialize(Object data,CancellationToken token)
+        public void Initialize(StageData data,CancellationToken token)
         {
             InitializeInternal(data, token);
         }
@@ -21,10 +22,9 @@ namespace Sabanihsi.ScreenSystem
         /// <summary>
         /// Screen破棄時の処理
         /// </summary>
-        /// <returns></returns>
-        public Object Dispose()
+        public void Dispose()
         {
-            return DisposeInternal();
+            DisposeInternal();
         }
 
         /// <summary>
@@ -33,16 +33,16 @@ namespace Sabanihsi.ScreenSystem
         /// <param name="token"></param>
         public virtual async UniTask OpenAnimation(CancellationToken token)
         {
-            await TmpScreenAnimation.Instance.FadeOut(0.5f,token);
+            await UniTask.Delay(1000, cancellationToken: token);
+            await ScreenAnimation.Instance.FadeOut(0.4f,token);
         }
         
         /// <summary>
         /// Screenを閉じる際のアニメーション
         /// </summary>
-        /// <param name="token"></param>
-        public virtual async UniTask CloseAnimation(CancellationToken token)
+        public virtual async UniTask CloseAnimation(StageData data,CancellationToken token)
         {
-            await TmpScreenAnimation.Instance.FadeIn(0.5f,token);
+            await ScreenAnimation.Instance.FadeIn(data.StageName,0.4f,token);
         }
 
         public async UniTask Open(CancellationToken token)
@@ -50,9 +50,9 @@ namespace Sabanihsi.ScreenSystem
             await OpenInternal(token);
         }
 
-        public async UniTask Close(CancellationToken token)
+        public async UniTask<StageData> Close(CancellationToken token)
         {
-            await CloseInternal(token);
+            return await CloseInternal(token);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Sabanihsi.ScreenSystem
         /// <param name="data">初期化に必要な前Screenから渡されるデータ</param>
         /// <param name="token">cancellation token</param>
         /// <returns></returns>
-        protected virtual void InitializeInternal(Object data, CancellationToken token)
+        protected virtual void InitializeInternal(StageData data, CancellationToken token)
         {
         }
 
@@ -70,12 +70,9 @@ namespace Sabanihsi.ScreenSystem
         /// Screen破棄時の処理
         /// Override用
         /// </summary>
-        protected virtual Object DisposeInternal()
+        protected virtual void DisposeInternal()
         {
-            return null;
         }
-        
-
         
         /// <summary>
         /// オープン処理
@@ -90,9 +87,9 @@ namespace Sabanihsi.ScreenSystem
         /// クローズ処理
         /// Override用
         /// </summary>
-        protected virtual UniTask CloseInternal(CancellationToken token)
+        protected virtual UniTask<StageData> CloseInternal(CancellationToken token)
         {
-            return UniTask.CompletedTask;
+            return new UniTask<StageData>(null);
         }
     }
 }

@@ -1,28 +1,29 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Sabanihsi.ScreenSystem;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Sabanishi.MainGame
 {
     public class MainGameScreen:AbstractScreen
     {
         [SerializeField] private GameLogicMaster _gameLogic;
-        
-        private StageData _stageData;
-        
-        protected override void InitializeInternal(Object data,CancellationToken token)
+
+        private void PrepareGoToStageSelectAction()
         {
-            var stageData = (StageData)data;
-            _stageData = stageData;
-            _gameLogic.Initialize(stageData);
+            _stageData = new StageData("ステージ セレクト");
+        }
+
+        protected override void InitializeInternal(StageData data,CancellationToken token)
+        {
+            _stageData = data;
+            _gameLogic.Initialize(data,PrepareGoToStageSelectAction);
         }
         
-        protected override Object DisposeInternal()
+        protected override void DisposeInternal()
         {
             _gameLogic.Dispose();
-            return _stageData;
         }
         
         protected override async UniTask OpenInternal(CancellationToken token)
@@ -30,9 +31,9 @@ namespace Sabanishi.MainGame
             
         }
         
-        protected override  async UniTask CloseInternal(CancellationToken token)
+        protected override  async UniTask<StageData> CloseInternal(CancellationToken token)
         {
-            
+            return _stageData;
         }
     }
 }
