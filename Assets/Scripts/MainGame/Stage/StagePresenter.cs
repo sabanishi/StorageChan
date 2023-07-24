@@ -12,6 +12,9 @@ namespace Sabanishi.MainGame.Stage
         public StageModel Model => _model;
         
         private Vector3 _playerRespawnPos;
+        public Vector3 PlayerRespawnPos => _playerRespawnPos;
+        private Vector3Int _doorPos;
+        public Vector3Int DoorPos => _doorPos;
         private Vector2 _mapSize;
         public Vector2 MapSize => _mapSize;
 
@@ -33,15 +36,6 @@ namespace Sabanishi.MainGame.Stage
             _model.CreateBlock(chipData);
         }
         
-        /// <summary>
-        /// プレイヤーがリスポーンすべき位置を返す
-        /// </summary>
-        /// <returns></returns>
-        public Vector3 GetPlayerRespawnPos()
-        {
-            return _playerRespawnPos;
-        }
-
         /// <summary>
         /// TilemapをChipEnum[,]に変換する
         /// </summary>
@@ -73,6 +67,9 @@ namespace Sabanishi.MainGame.Stage
                         }else if (tile.name.Equals("Box"))
                         {
                             chipEnum = ChipEnum.Box;
+                        }else if (tile.name.Equals("Door"))
+                        {
+                            _doorPos = new Vector3Int(x, y, 0);
                         }
                     }
                     
@@ -90,6 +87,14 @@ namespace Sabanishi.MainGame.Stage
         public void Dispose()
         {
             _model.Dispose();
+        }
+
+        /// <summary>
+        /// 全ての箱が室内に存在すればtrueを返す
+        /// </summary>
+        public bool IsAllBoxIndoor(int x)
+        {
+            return _model.IsAllBlockIndoor(x);
         }
     }
 }

@@ -1,6 +1,4 @@
 using System;
-using Cysharp.Threading.Tasks;
-using MainGame.Stage;
 using UniRx;
 using UnityEngine;
 
@@ -17,6 +15,8 @@ namespace Sabanishi.MainGame
         public IObservable<ChipData> AddBoxSubject => _addBoxSubject;
         private Subject<ChipData> _removeBoxSubject;
         public IObservable<ChipData> RemoveBoxSubject => _removeBoxSubject;
+        
+        public PlayerModel Model => _model;
 
         /// <summary>
         /// 初期化関数
