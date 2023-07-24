@@ -57,6 +57,11 @@ namespace Sabanishi.MainGame
         public Func<Direction, Box> CheckBoxAction;
         public Func<Direction, (bool,Vector2Int)> CheckCanPutBox;
         public Action PlayPaintAction;
+        
+        public void SetCanOperate(bool canOperate)
+        {
+            _canOperate = canOperate;
+        }
 
         public PlayerModel()
         {

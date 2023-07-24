@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Triggers;
 using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UniRx;
@@ -81,6 +82,14 @@ namespace Sabanishi.MainGame
             if (isClear)
             {
                 //TODO:クリア処理
+                _player.Model.SetCanOperate(false);
+                
+                async UniTaskVoid Clear()
+                {
+                    await UniTask.Delay(500);
+                    ScreenTransition.Instance.Move(ScreenEnum.Home).Forget();
+                }
+                Clear().Forget();
             }
         }
 
