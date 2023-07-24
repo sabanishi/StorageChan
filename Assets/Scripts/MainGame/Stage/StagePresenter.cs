@@ -70,6 +70,12 @@ namespace Sabanishi.MainGame.Stage
                         }else if (tile.name.Equals("Door"))
                         {
                             _doorPos = new Vector3Int(x, y, 0);
+                        }else if (tile.name.Equals("Ground"))
+                        {
+                            chipEnum = ChipEnum.CannotPaintBlock;
+                        }else if (tile.name.Equals("BackTile"))
+                        {
+                            chipEnum = ChipEnum.IndoorBack;
                         }
                     }
                     

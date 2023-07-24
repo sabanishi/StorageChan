@@ -18,7 +18,8 @@ namespace Sabanishi.MainGame
         
         public void Show(TimeSpan time,int paintCount)
         {
-            async UniTask Act(){
+            UniTask.Void(async () =>
+            {
                 _root.SetActive(true);
                 _timeRoot.SetActive(false);
                 _paintRoot.SetActive(false);
@@ -38,12 +39,11 @@ namespace Sabanishi.MainGame
                 
                 _explainRoot.SetActive(true);
                 
-                 //Enterキーが押されるまで待機
-                 await UniTask.WaitUntil(() => Input.GetButtonDown("Decide"));
+                //Enterキーが押されるまで待機
+                await UniTask.WaitUntil(() => Input.GetButtonDown("Decide"));
                  
-                 ScreenTransition.Instance.Move(ScreenEnum.Home).Forget();
-            }
-            Act().Forget();
+                ScreenTransition.Instance.Move(ScreenEnum.Home).Forget();
+            });
         }
         
     }

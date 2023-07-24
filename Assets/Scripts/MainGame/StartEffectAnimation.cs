@@ -27,18 +27,17 @@ namespace Sabanishi.MainGame
             obj.transform.localScale = 2.5f * Vector3.one;
             var sprr = obj.AddComponent<SpriteRenderer>();
             sprr.sprite = sprite;
+            sprr.sortingLayerName = "BackEffect";
             obj.transform.position = startPos;
 
-            async UniTask Animation()
+            UniTask.Void(async () =>
             {
                 await obj.transform.DOMove(startPos + GetMovePos(i), 0.5f).SetEase(Ease.OutCubic)
                     .ToUniTask(cancellationToken: obj.GetCancellationTokenOnDestroy());
                 await sprr.DOFade(0, 0.3f).SetEase(Ease.Linear)
                     .ToUniTask(cancellationToken: obj.GetCancellationTokenOnDestroy());
                 Destroy(obj);
-            }
-
-            Animation().Forget();
+            });
         }
 
         private Vector3 GetMovePos(int i)

@@ -45,6 +45,15 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: BackEffect
+    uniqueID: 598943689
+    locked: 0
   - name: Object
     uniqueID: 4029739473
+    locked: 0
+  - name: FrontEffect
+    uniqueID: 3933001369
+    locked: 0
+  - name: UI
+    uniqueID: 4056588689
     locked: 0
