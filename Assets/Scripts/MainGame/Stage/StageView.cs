@@ -74,7 +74,6 @@ namespace Sabanishi.MainGame
         {
             int x = removeEvent.Value.X;
             int y = removeEvent.Value.Y;
-            Debug.Log($"Remove:{x},{y},{_mapChipArray[x,y]}");
             Destroy(_mapChipArray[x, y]);
             _mapChipArray[x, y] = null;
         }

@@ -51,13 +51,15 @@ namespace Sabanishi.MainGame
         private bool _isStickJump; //地上以外からジャンプしたかどうか
         private BlockChip _nowSelectedChip;
         private bool _isPainted;
+        private int _paintCount;
+        public int PaintCount => _paintCount;
 
         public Func<Direction, Direction, BlockChip> CheckCanPaintAction;
         public Func<Direction, bool> CheckIsAirAction;
         public Func<Direction, Box> CheckBoxAction;
-        public Func<Direction, (bool,Vector2Int)> CheckCanPutBox;
+        public Func<Direction, (bool, Vector2Int)> CheckCanPutBox;
         public Action PlayPaintAction;
-        
+
         public void SetCanOperate(bool canOperate)
         {
             _canOperate = canOperate;
@@ -89,6 +91,7 @@ namespace Sabanishi.MainGame
             _myCollider = myCollider;
             _speedVec = Vector3.zero;
             _canOperate = false;
+            _paintCount = 0;
         }
 
         public void Dispose()
@@ -117,7 +120,7 @@ namespace Sabanishi.MainGame
             {
                 _isStickJump = false;
             }
-            
+
             if (_isPainted)
             {
                 if (Input.GetButtonDown("Horizontal") || Input.GetButtonDown("Vertical"))
@@ -129,8 +132,8 @@ namespace Sabanishi.MainGame
             _pos.Value = beforePos;
             _isAir.Value = isAir;
             if (_canOperate) InputPaint();
-            if(_canOperate)InputHang();
-            if (!_isPaintMode.Value && _canOperate) InputMove();
+            if (_canOperate) InputHang();
+            if (!_isPaintMode.Value) InputMove();
             ApplyGravity();
             if (!_isPaintMode.Value && _canOperate) InputJump();
 
@@ -168,8 +171,8 @@ namespace Sabanishi.MainGame
                     {
                         //ハコを置く
                         _isHang.Value = false;
-                        Vector2Int putPos=tuple.Item2;
-                        _putBoxSubject.OnNext(new ChipData(ChipEnum.Box,null,putPos.x,putPos.y));
+                        Vector2Int putPos = tuple.Item2;
+                        _putBoxSubject.OnNext(new ChipData(ChipEnum.Box, null, putPos.x, putPos.y));
                         UniTask.Void(async () =>
                         {
                             _canOperate = false;
@@ -266,6 +269,7 @@ namespace Sabanishi.MainGame
                 {
                     chip.Paint(CalcUtils.ReverseDirection(direction));
                     _isPainted = true;
+                    _paintCount++;
 
                     UniTask.Void(async () =>
                     {
@@ -468,6 +472,11 @@ namespace Sabanishi.MainGame
         private void InputMove()
         {
             if (_isPainted) return;
+            if (!_canOperate)
+            {
+                _speedVec = Vector3.zero;
+                return;
+            }
 
             Vector3 newSpeedVec = _speedVec;
             if (NowBodyDirection.Value is Direction.Down or Direction.Up)
@@ -499,7 +508,7 @@ namespace Sabanishi.MainGame
         /// </summary>
         private void InputJump()
         {
-            if (!_isAir.Value && Input.GetButtonDown("Jump"))
+            if (!_isAir.Value && Input.GetButton("Jump"))
             {
                 switch (_bodyDirection.Value)
                 {

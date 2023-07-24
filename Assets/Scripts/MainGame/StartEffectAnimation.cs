@@ -18,8 +18,7 @@ namespace Sabanishi.MainGame
                 CreateEffect(startPos, i);
             }
         }
-
-        // ReSharper disable Unity.PerformanceAnalysis
+        
         private void CreateEffect(Vector3 startPos, int i)
         {
             Sprite sprite = GetSprite(i);

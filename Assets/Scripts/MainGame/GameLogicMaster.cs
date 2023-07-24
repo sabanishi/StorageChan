@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Cysharp.Threading.Tasks.Triggers;
 using Sabanihsi.ScreenSystem;
 using Sabanishi.MainGame.Stage;
 using UniRx;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -20,10 +18,13 @@ namespace Sabanishi.MainGame
         [SerializeField] private StagePresenter _stagePresenter;
         [SerializeField] private MainCamera _mainCamera;
         [SerializeField]private StartEffectAnimation _startEffectAnimation;
+        [SerializeField]private ResultPanel _resultPanel;
         
         private PlayerPresenter _player;
         private int _doorX;
         private Action _gotoStageSelectAction;
+        private DateTime _startTime;
+        private bool _isClear;
         
         private Dictionary<string, string> _stageTilemapPathDict = new()
         {
@@ -50,6 +51,7 @@ namespace Sabanishi.MainGame
             _mainCamera.Initialize(_player.transform,_stagePresenter.MapSize);
 
             _doorX = _stagePresenter.DoorPos.x;
+            _startTime = DateTime.Now;
         }
 
         public void Open()
@@ -84,22 +86,22 @@ namespace Sabanishi.MainGame
 
         private void Update()
         {
+            if (_isClear)
+            {
+                _player.Model.SetCanOperate(false);
+                return;
+            }
             if (Input.GetButtonDown("Reset"))
             {
                 ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
             }
-            var isClear = CheckIsClear();
-            if (isClear)
+            
+            _isClear = CheckIsClear();
+            if (_isClear)
             {
-                //TODO:クリア処理
-                _player.Model.SetCanOperate(false);
                 _gotoStageSelectAction?.Invoke();
-                async UniTaskVoid Clear()
-                {
-                    await UniTask.Delay(500);
-                    ScreenTransition.Instance.Move(ScreenEnum.Home).Forget();
-                }
-                Clear().Forget();
+                var nowTime = DateTime.Now;
+                _resultPanel.Show(nowTime-_startTime,_player.Model.PaintCount);
             }
         }
 
