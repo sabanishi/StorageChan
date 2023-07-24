@@ -1,5 +1,6 @@
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Sabanihsi.ScreenSystem;
-using Object = System.Object;
 
 namespace Sabanishi.Home
 {
@@ -12,7 +13,7 @@ namespace Sabanishi.Home
             _stageData = data;
         }
 
-        protected override Object DisposeInternal()
+        protected override async UniTask<StageData> CloseInternal(CancellationToken token)
         {
             return _stageData;
         }

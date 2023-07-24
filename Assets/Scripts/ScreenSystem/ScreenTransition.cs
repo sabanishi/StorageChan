@@ -53,13 +53,13 @@ namespace Sabanihsi.ScreenSystem
 
             _isTransitioning = true;
             var token = this.GetCancellationTokenOnDestroy();
-            Object data = null;
+            StageData data = null;
 
             if (_nowScreen != null)
             {
-                await _nowScreen.Close(token);
-                await _nowScreen.CloseAnimation(token);
-                data = _nowScreen.Dispose();
+                data = await _nowScreen.Close(token);
+                await _nowScreen.CloseAnimation(data,token);
+                _nowScreen.Dispose();
                 Destroy(_nowScreen.gameObject);
             }
             
@@ -76,13 +76,16 @@ namespace Sabanihsi.ScreenSystem
 
             if (nextScreen != null)
             {
-                _nowScreen = nextScreen;
                 //自身またはnowScreenが破壊されたい際に停止するトークンを生成
                 var nextScreenCt = nextScreen.gameObject.GetCancellationTokenOnDestroy();
                 var nextScreenCts = CancellationTokenSource.CreateLinkedTokenSource(token, nextScreenCt);
                 nextScreen.Initialize(data, nextScreenCts.Token);
-                await nextScreen.OpenAnimation(nextScreenCts.Token);
+                if (_nowScreen != null)
+                {
+                    await nextScreen.OpenAnimation(nextScreenCts.Token);
+                }
                 nextScreen.Open(nextScreenCts.Token).Forget();
+                _nowScreen = nextScreen;
             }
 
             _isTransitioning = false;
