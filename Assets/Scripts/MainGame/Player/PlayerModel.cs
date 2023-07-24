@@ -88,7 +88,7 @@ namespace Sabanishi.MainGame
             _beforePos = startPos;
             _myCollider = myCollider;
             _speedVec = Vector3.zero;
-            _canOperate = true;
+            _canOperate = false;
         }
 
         public void Dispose()
