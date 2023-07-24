@@ -114,7 +114,11 @@ namespace Sabanishi.MainGame
         public void Update(Vector3 beforePos, bool isAir)
         {
             //1フレームの間隔が大きすぎる時、処理を飛ばす
-            if (Time.deltaTime > 0.2f) return;
+            if (Time.deltaTime > 0.1f)
+            {
+                Debug.Log("重すぎます");
+                return;
+            }
 
             if (!isAir)
             {
@@ -132,7 +136,6 @@ namespace Sabanishi.MainGame
             _pos.Value = beforePos;
             _isAir.Value = isAir;
             if (_canOperate) InputPaint();
-            if (_canOperate) InputHang();
             if (!_isPaintMode.Value) InputMove();
             ApplyGravity();
             if (!_isPaintMode.Value && _canOperate) InputJump();
@@ -143,6 +146,7 @@ namespace Sabanishi.MainGame
             ResolveCollision();
             SpeedUpdate();
             CheckNextStepIsAir(isAir);
+            if (_canOperate) InputHang();
             Rotate();
 
             if (!_canOperate) return;
@@ -194,6 +198,12 @@ namespace Sabanishi.MainGame
                         //ハコを持つ
                         _isHang.Value = true;
                         _removeBoxSubject.OnNext(box.ChipData);
+                        UniTask.Void(async () =>
+                        {
+                            _canOperate = false;
+                            await UniTask.Delay(300);
+                            _canOperate = true;
+                        });
                     }
                 }
             }
@@ -276,7 +286,7 @@ namespace Sabanishi.MainGame
                         chip.SetPaintSignActive(false);
                         _canOperate = false;
                         PlayPaintAction?.Invoke();
-                        await UniTask.Delay(500);
+                        await UniTask.Delay(300);
                         _canOperate = true;
                     });
                 }

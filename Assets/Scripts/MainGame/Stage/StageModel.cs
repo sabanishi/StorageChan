@@ -60,7 +60,6 @@ namespace Sabanishi.MainGame.Stage
                     if (!chip.ChipEnum.Equals(ChipEnum.Box)) break;
                     if (!IsStick(chip.X, chip.Y))
                     {
-                        Debug.Log($"DropBox:{chip.X},{chip.Y}");
                         _dropBoxSubject.OnNext(chip);
                         DropBox(chip);
                         chip.SetY(chip.Y-1);
@@ -105,7 +104,7 @@ namespace Sabanishi.MainGame.Stage
         {
             foreach (var chipData in _stageData)
             {
-                if (chipData.ChipEnum.Equals(ChipEnum.Box) && chipData.X < x)
+                if (chipData.ChipEnum.Equals(ChipEnum.Box) && chipData.X <= x)
                 {
                     return false;
                 }

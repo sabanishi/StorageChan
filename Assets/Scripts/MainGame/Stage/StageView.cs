@@ -55,7 +55,10 @@ namespace Sabanishi.MainGame
             {
                 var obj = Instantiate(prefab, _root);
                 obj.transform.localPosition = new Vector3(x, y, 0);
-                _mapChipArray[x, y] = obj;
+                if (!chipData.ChipEnum.Equals(ChipEnum.IndoorBack))
+                {
+                    _mapChipArray[x, y] = obj;
+                }
                 if (chipData.ChipEnum is ChipEnum.CannotPaintBlock or ChipEnum.CanPaintBlock)
                 {
                     obj.GetComponent<BlockChip>().Sprr.sprite = chipData.Image;
@@ -83,7 +86,6 @@ namespace Sabanishi.MainGame
             var obj = _mapChipArray[chipData.X, chipData.Y];
             if (obj == null) return;
             _mapChipArray[chipData.X, chipData.Y] = null;
-            Debug.Log(_mapChipArray[chipData.X,chipData.Y-1]);
             _mapChipArray[chipData.X, chipData.Y - 1] = obj;
 
             obj.transform.DOMoveY(obj.transform.position.y - 1, 0.3f).SetEase(Ease.InSine);
