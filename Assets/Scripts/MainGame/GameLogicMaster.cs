@@ -19,6 +19,7 @@ namespace Sabanishi.MainGame
         [SerializeField] private PlayerPresenter _playerPresenterPrefab;
         [SerializeField] private StagePresenter _stagePresenter;
         [SerializeField] private MainCamera _mainCamera;
+        [SerializeField]private StartEffectAnimation _startEffectAnimation;
         
         private PlayerPresenter _player;
         private int _doorX;
@@ -49,6 +50,12 @@ namespace Sabanishi.MainGame
             _mainCamera.Initialize(_player.transform,_stagePresenter.MapSize);
 
             _doorX = _stagePresenter.DoorPos.x;
+        }
+
+        public void Open()
+        {
+            _player.Model.SetCanOperate(true);
+            _startEffectAnimation.StartEffect(_stagePresenter.PlayerRespawnPos);
         }
 
         public void Dispose()

@@ -9,11 +9,7 @@ namespace Sabanishi.MainGame
     public class MainGameScreen:AbstractScreen
     {
         [SerializeField] private GameLogicMaster _gameLogic;
-
-        private void PrepareGoToStageSelectAction()
-        {
-            _stageData = new StageData("ステージ セレクト");
-        }
+        
 
         protected override void InitializeInternal(StageData data,CancellationToken token)
         {
@@ -21,19 +17,25 @@ namespace Sabanishi.MainGame
             _gameLogic.Initialize(data,PrepareGoToStageSelectAction);
         }
         
+        protected override UniTask OpenInternal(CancellationToken token)
+        {
+            _gameLogic.Open();
+            return UniTask.CompletedTask;
+        }
+        
         protected override void DisposeInternal()
         {
             _gameLogic.Dispose();
         }
         
-        protected override async UniTask OpenInternal(CancellationToken token)
-        {
-            
-        }
-        
         protected override  async UniTask<StageData> CloseInternal(CancellationToken token)
         {
             return _stageData;
+        }
+        
+        private void PrepareGoToStageSelectAction()
+        {
+            _stageData = new StageData("ステージ セレクト");
         }
     }
 }

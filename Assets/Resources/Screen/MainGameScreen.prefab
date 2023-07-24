@@ -468,6 +468,7 @@ GameObject:
   - component: {fileID: 556897717577737388}
   - component: {fileID: 5179040055084355305}
   - component: {fileID: 3949397402468421739}
+  - component: {fileID: 8833548796402713224}
   m_Layer: 0
   m_Name: MainGameScreen
   m_TagString: Untagged
@@ -521,6 +522,23 @@ MonoBehaviour:
   _playerPresenterPrefab: {fileID: 4562088799554863496, guid: 6317b856b5e274c95be24284cc4c3590, type: 3}
   _stagePresenter: {fileID: 8888111704750998369}
   _mainCamera: {fileID: 1411579319648871795}
+  _startEffectAnimation: {fileID: 8833548796402713224}
+--- !u!114 &8833548796402713224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7040756783581663630}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e647136f02e94296934ff985473e4ef9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _image1: {fileID: 21300000, guid: 430a9dcc952544fa49627749b8d9c7f6, type: 3}
+  _image2: {fileID: 21300000, guid: 4e91e4048e06145138d7e08ca2eb6344, type: 3}
+  _image3: {fileID: 21300000, guid: d230088442a434e679b30f0807de0caa, type: 3}
+  _image4: {fileID: 21300000, guid: 717c1dfbb6582472bb25f19af228ccbe, type: 3}
 --- !u!1 &8429118886640938774
 GameObject:
   m_ObjectHideFlags: 0
