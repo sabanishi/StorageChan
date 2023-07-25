@@ -9,13 +9,15 @@ namespace MainGame.Stage
     public class Flag:MonoBehaviour
     {
         [SerializeField] private GameObject _ballonObj;
+        [SerializeField]private SpriteRenderer _numberSpriteRenderer;
         private string _stageName;
         private bool _isActive;
         private bool _canOperate;
         
-        public void Initialize(int stageNum)
+        public void Initialize(int stageNum,Sprite numberSprite)
         {
             var stageName = $"Stage{stageNum}";
+            _numberSpriteRenderer.sprite = numberSprite;
             _stageName = stageName;
             _canOperate = true;
             _isActive = false;

@@ -69,7 +69,7 @@ namespace Sabanishi.MainGame
                 }
                 else if (chipData.ChipEnum is ChipEnum.Flag)
                 {
-                    obj.GetComponent<Flag>().Initialize(chipData.StageNum);
+                    obj.GetComponent<Flag>().Initialize(chipData.StageNum,chipData.Image);
                 }
             }
         }

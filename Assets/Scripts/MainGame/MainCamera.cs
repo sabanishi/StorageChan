@@ -10,6 +10,7 @@ namespace Sabanishi.MainGame
         [SerializeField] private PolygonCollider2D _limitColliderPrefab;
         [SerializeField] private float _cameraDepth;
         [SerializeField] private BoxCollider2D _borderCollider;
+        [SerializeField] private BoxCollider2D _borderCollider2;
 
         public void Initialize(Transform playerTransform,Vector2 screenSize)
         {
@@ -30,6 +31,8 @@ namespace Sabanishi.MainGame
             //画面端のcolliderの設定
             _borderCollider.size = new Vector2(1, screenSize.y+5f);
             _borderCollider.gameObject.transform.position = new Vector2(-1, screenSize.y / 2f - 0.5f);
+            _borderCollider2.size = new Vector2(1, screenSize.y+5f);
+            _borderCollider2.gameObject.transform.position = new Vector2(screenSize.x, screenSize.y / 2f - 0.5f);
         }
     }
 }

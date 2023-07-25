@@ -20,7 +20,6 @@ namespace Sabanihsi.ScreenSystem
 
         private Dictionary<ScreenEnum, string> _screenPathDict = new()
         {
-            { ScreenEnum.Home, "Screen/HomeScreen" },
             { ScreenEnum.MainGame, "Screen/MainGameScreen" }
         };
 

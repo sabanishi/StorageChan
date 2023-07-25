@@ -42,7 +42,9 @@ namespace Sabanishi.MainGame
                 //Enterキーが押されるまで待機
                 await UniTask.WaitUntil(() => Input.GetButtonDown("Decide"));
                  
-                ScreenTransition.Instance.Move(ScreenEnum.Home).Forget();
+                var stageData = new StageData("StageSelect");
+                GameObject.FindWithTag("MainGameScreen").GetComponent<MainGameScreen>().SetStageData(stageData);
+                ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
             });
         }
         
