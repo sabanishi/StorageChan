@@ -41,7 +41,7 @@ namespace Sabanishi.MainGame
             _model.PutBoxSubject.Subscribe(PutBox).AddTo(gameObject);
             _model.RemoveBoxSubject.Subscribe(RemoveBox).AddTo(gameObject);
             _model.CheckCanPaintAction = _view.CheckCanPaint;
-            _model.CheckIsAirAction = _view.CheckIsAir;
+            _model.CheckIsAirAction = _view.CheckIsCannotStickBlock;
             _model.PlayPaintAction = _view.PlayPaintAnimation;
             _model.CheckBoxAction = _view.CheckBox;
             _model.CheckCanPutBox = _view.CheckCanPutBox;

@@ -120,7 +120,6 @@ namespace Sabanishi.MainGame
         /// <returns></returns>
         public bool CheckIsAir(Direction bodyDirection)
         {
-            //足元に何もない場合、空中にいると判定する
             Vector2 offset = GetOffset(bodyDirection);
 
             var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(bodyDirection), _rayLength, _blockLayer);
@@ -128,6 +127,21 @@ namespace Sabanishi.MainGame
             if (hit.collider == null) return true;
             BlockChip chip = hit.collider.gameObject.GetComponent<BlockChip>();
             if (chip == null) return true;
+            return !chip.CanStick(CalcUtils.ReverseDirection(bodyDirection));
+        }
+
+        /// <summary>
+        /// 足元に接地できないブロックがある時のみtrueを返す
+        /// </summary>
+        public bool CheckIsCannotStickBlock(Direction bodyDirection)
+        {
+            Vector2 offset = GetOffset(bodyDirection);
+
+            var hit = Physics2D.Raycast((Vector2)_transform.position + offset, ConvertToVector(bodyDirection), _rayLength, _blockLayer);
+
+            if (hit.collider == null) return false;
+            BlockChip chip = hit.collider.gameObject.GetComponent<BlockChip>();
+            if (chip == null) return false;
             return !chip.CanStick(CalcUtils.ReverseDirection(bodyDirection));
         }
 
