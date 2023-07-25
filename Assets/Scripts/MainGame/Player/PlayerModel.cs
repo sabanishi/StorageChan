@@ -11,9 +11,9 @@ namespace Sabanishi.MainGame
 {
     public class PlayerModel
     {
-        private const float MoveSpeed = 5.0f;
+        private const float MoveSpeed = 4f;
         private const float GravityScale = 9.8f;
-        private const float JumpPower = 5.0f;
+        private const float JumpPower = 4.5f;
         private const float _nigligibleError = 0.12f;
 
         #region ReactiveProperty
@@ -180,7 +180,6 @@ namespace Sabanishi.MainGame
                         UniTask.Void(async () =>
                         {
                             _canOperate = false;
-                            PlayPaintAction?.Invoke();
                             await UniTask.Delay(300);
                             _canOperate = true;
                         });

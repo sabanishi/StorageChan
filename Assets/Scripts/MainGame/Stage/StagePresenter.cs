@@ -55,12 +55,12 @@ namespace Sabanishi.MainGame.Stage
                     var chipEnum = ChipEnum.None;
                     if(tile is not null)
                     {
-                        if (tile.name.Contains("Floor"))
+                        if (tile.name.Contains("Floor2"))
                         {
-                            chipEnum = ChipEnum.CanPaintBlock;
-                        }else if (tile.name.Contains("Floor2"))
+                            chipEnum = ChipEnum.CannotPaintBlock;
+                        }else if (tile.name.Contains("Floor"))
                         {
-                            chipEnum= ChipEnum.CannotPaintBlock;   
+                            chipEnum= ChipEnum.CanPaintBlock;   
                         }else if (tile.name.Equals("Start"))
                         {
                             _playerRespawnPos = new Vector3(x, y, 0);
