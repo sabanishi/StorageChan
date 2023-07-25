@@ -28,7 +28,8 @@ namespace Sabanishi.MainGame
         
         private Dictionary<string, string> _stageTilemapPathDict = new()
         {
-            { "Stage1", "Tilemap/TmpTilemap" },
+            { "Stage1", "Tilemap/Stage1" },
+            { "Stage2", "Tilemap/Stage2" },
             {"StageSelect","Tilemap/StageSelect"}
         };
 
