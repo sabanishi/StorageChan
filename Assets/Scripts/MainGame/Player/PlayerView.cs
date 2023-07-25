@@ -31,7 +31,7 @@ namespace Sabanishi.MainGame
             _animator = GetComponent<Animator>();
             var collider = GetComponent<BoxCollider2D>();
             var size = collider.size;
-            _rayLength = size.y / 2f;
+            _rayLength = size.y / 1.95f;
             _colliderOffset = collider.offset;
             _colliderSize = size;
             _posChangeSubject = new();
