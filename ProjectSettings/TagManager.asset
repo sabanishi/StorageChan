@@ -7,7 +7,9 @@ TagManager:
   - Block
   - Box
   - Border
+  - Flag
   - HomeScreen
+  - MainGameScreen
   layers:
   - Default
   - TransparentFX

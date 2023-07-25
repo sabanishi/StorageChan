@@ -35,7 +35,12 @@ namespace Sabanishi.MainGame
         
         private void PrepareGoToStageSelectAction()
         {
-            _stageData = new StageData("ステージ セレクト");
+            _stageData = new StageData("StageSelect");
+        }
+        
+        public void SetStageData(StageData data)
+        {
+            _stageData = data;
         }
     }
 }

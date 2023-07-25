@@ -1360,6 +1360,8 @@ MonoBehaviour:
       Value: {fileID: 4489727821288239173, guid: 0faa99c4f3dcf44afb6f2c7abba4e4d8, type: 3}
     - Key: 4
       Value: {fileID: 4724244369082291741, guid: 2e0ce83827f8a455e9a2c800be907c2e, type: 3}
+    - Key: 5
+      Value: {fileID: 9070457713029731657, guid: f87b996117d4348138fe2b043d5b6022, type: 3}
 --- !u!1 &6702929909456959024
 GameObject:
   m_ObjectHideFlags: 0
@@ -1458,7 +1460,7 @@ GameObject:
   - component: {fileID: 8833548796402713224}
   m_Layer: 0
   m_Name: MainGameScreen
-  m_TagString: Untagged
+  m_TagString: MainGameScreen
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

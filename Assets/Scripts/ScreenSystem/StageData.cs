@@ -5,9 +5,29 @@ namespace Sabanihsi.ScreenSystem
         private string _stageName;
         public string StageName => _stageName;
         
-        public StageData(string stageName)
+        private string _tileName;
+        public string TileName => _tileName;
+
+        public StageData(string tileName)
         {
-            _stageName = stageName;
+            _tileName = tileName;
+            SetTitleName();
+        }
+
+        private void SetTitleName()
+        {
+            switch (_tileName)
+            {
+                case "StageSelect":
+                    _stageName = "ステージ セレクト";
+                    break;
+                case "Stage1":
+                    _stageName = "ステージ1";
+                    break;
+                case "Stage2":
+                    _stageName = "ステージ2";
+                    break;
+            }
         }
     }
 }

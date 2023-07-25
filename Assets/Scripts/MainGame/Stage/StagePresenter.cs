@@ -76,10 +76,14 @@ namespace Sabanishi.MainGame.Stage
                         }else if (tile.name.Equals("BackTile"))
                         {
                             chipEnum = ChipEnum.IndoorBack;
+                        }else if (int.TryParse(tile.name, out var stageNum))
+                        {
+                            chipEnum = ChipEnum.Flag;
+                            chipData[x, y] = new ChipData(ChipEnum.Flag, null, x, y, stageNum);
                         }
                     }
                     
-                    if (!chipEnum.Equals(ChipEnum.None))
+                    if (!chipEnum.Equals(ChipEnum.None)&&!chipEnum.Equals(ChipEnum.Flag))
                     {
                         //tileの画像を取得する
                         var sprite = ((Tile)tile)?.sprite;
