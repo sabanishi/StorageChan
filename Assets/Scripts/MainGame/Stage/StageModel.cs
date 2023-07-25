@@ -102,14 +102,20 @@ namespace Sabanishi.MainGame.Stage
         /// </summary>
         public bool IsAllBlockIndoor(int x)
         {
+            bool hasBox = false;
             foreach (var chipData in _stageData)
             {
-                if (chipData.ChipEnum.Equals(ChipEnum.Box) && chipData.X <= x)
+                if (chipData.ChipEnum.Equals(ChipEnum.Box))
                 {
-                    return false;
+                    hasBox = true;
+                    if(chipData.X <= x)
+                    {
+                        return false;
+                    }
                 }
             }
-            return true;
+            //1つも箱がない場合はtrueを返す
+            return hasBox;
         }
     }
 }

@@ -5,6 +5,6 @@ namespace Sabanishi.MainGame
     /// </summary>
     public enum ChipEnum
     {
-        None,CanPaintBlock,CannotPaintBlock,Box,IndoorBack
+        None,CanPaintBlock,CannotPaintBlock,Box,IndoorBack,Flag
     }
 }

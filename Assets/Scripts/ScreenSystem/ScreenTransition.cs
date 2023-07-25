@@ -20,7 +20,6 @@ namespace Sabanihsi.ScreenSystem
 
         private Dictionary<ScreenEnum, string> _screenPathDict = new()
         {
-            { ScreenEnum.Home, "Screen/HomeScreen" },
             { ScreenEnum.MainGame, "Screen/MainGameScreen" }
         };
 
@@ -41,13 +40,13 @@ namespace Sabanihsi.ScreenSystem
 
         private void Start()
         {
-            Move(_loadScreenEnum).Forget();
+            Move(_loadScreenEnum,new StageData("StageSelect")).Forget();
         }
 
         /// <summary>
         /// 次の画面に遷移する
         /// </summary>
-        public async UniTask Move(ScreenEnum nextScreenEnum)
+        public async UniTask Move(ScreenEnum nextScreenEnum,StageData argumentData = null)
         {
             if (_isTransitioning) return;
 
@@ -62,6 +61,8 @@ namespace Sabanihsi.ScreenSystem
                 _nowScreen.Dispose();
                 Destroy(_nowScreen.gameObject);
             }
+
+            if (argumentData != null) data = argumentData;
             
             AbstractScreen nextScreen = null;
             bool isGetPrefab = TryGetScreenPrefab(nextScreenEnum, out var screenPrefab);

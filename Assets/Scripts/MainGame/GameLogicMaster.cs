@@ -28,7 +28,8 @@ namespace Sabanishi.MainGame
         
         private Dictionary<string, string> _stageTilemapPathDict = new()
         {
-            { "Tmp", "Tilemap/TmpTilemap" },
+            { "Stage1", "Tilemap/TmpTilemap" },
+            {"StageSelect","Tilemap/StageSelect"}
         };
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace Sabanishi.MainGame
             _gotoStageSelectAction = gotoStageSelectAction;
             _player = Instantiate(_playerPresenterPrefab,transform);
 
-            if (TryGetStageTilemap(stageData.StageName, out var tilemap))
+            if (TryGetStageTilemap(stageData.TileName, out var tilemap))
             {
                 _stagePresenter.Initialize(tilemap);
             }
@@ -71,7 +72,7 @@ namespace Sabanishi.MainGame
             tilemap = null;
             if (!_stageTilemapPathDict.TryGetValue(stageName, out var path))
             {
-                Debug.LogError("[ScreenTransition] ScreenEnumに対応するパスが見つかりませんでした");
+                Debug.LogError("[ScreenTransition] ScreenEnumに対応するパスが見つかりませんでした: " + stageName);
                 return false;
             }
 
