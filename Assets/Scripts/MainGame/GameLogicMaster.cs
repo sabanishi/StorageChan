@@ -56,11 +56,14 @@ namespace Sabanishi.MainGame
             _startTime = DateTime.Now;
         }
 
-        public void Open()
+        public void Open(bool isStageSelect)
         {
-            SoundManager.PlaySE(SE_Enum.HUE);
             _player.Model.SetCanOperate(true);
-            _startEffectAnimation.StartEffect(_stagePresenter.PlayerRespawnPos);
+            if (!isStageSelect)
+            {
+                SoundManager.PlaySE(SE_Enum.HUE);
+                _startEffectAnimation.StartEffect(_stagePresenter.PlayerRespawnPos);
+            }
         }
 
         public void Dispose()
@@ -94,8 +97,15 @@ namespace Sabanishi.MainGame
                 _player.Model.SetCanOperate(false);
                 return;
             }
+            
             if (Input.GetButtonDown("Reset"))
             {
+                ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
+            }
+
+            if (Input.GetButtonDown("Quit"))
+            {
+                _gotoStageSelectAction?.Invoke();
                 ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
             }
             

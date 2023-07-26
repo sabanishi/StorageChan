@@ -18,7 +18,7 @@ namespace Sabanishi.MainGame
         
         protected override UniTask OpenInternal(CancellationToken token)
         {
-            _gameLogic.Open();
+            _gameLogic.Open(_stageData.TileName.Equals("StageSelect"));
             SoundManager.PlayBGM(_stageData.TileName.Equals("StageSelect") ? BGM_Enum.STAGESELECT : BGM_Enum.MAINGAME);
             return UniTask.CompletedTask;
         }
