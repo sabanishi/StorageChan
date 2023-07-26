@@ -84,7 +84,8 @@ namespace Sabanishi.MainGame
 
         public void OnBodyDirectionChanged(Direction bodyDirection)
         {
-            float diff = (_colliderOffset.y + _colliderOffset.x) / 2;
+            float diff = (_colliderOffset.y + _colliderOffset.x)/2;
+            diff = 0;
             switch (bodyDirection)
             {
                 case Direction.Down:
