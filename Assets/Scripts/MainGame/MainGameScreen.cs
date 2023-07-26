@@ -9,7 +9,6 @@ namespace Sabanishi.MainGame
     public class MainGameScreen:AbstractScreen
     {
         [SerializeField] private GameLogicMaster _gameLogic;
-        
 
         protected override void InitializeInternal(StageData data,CancellationToken token)
         {

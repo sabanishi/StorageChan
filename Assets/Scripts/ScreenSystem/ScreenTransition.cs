@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
-using Object = System.Object;
 
 namespace Sabanihsi.ScreenSystem
 {
@@ -20,6 +19,7 @@ namespace Sabanihsi.ScreenSystem
 
         private Dictionary<ScreenEnum, string> _screenPathDict = new()
         {
+            { ScreenEnum.Title ,"Screen/TitleScreen"},
             { ScreenEnum.MainGame, "Screen/MainGameScreen" }
         };
 
@@ -40,7 +40,7 @@ namespace Sabanihsi.ScreenSystem
 
         private void Start()
         {
-            Move(_loadScreenEnum,new StageData("StageSelect")).Forget();
+            Move(_loadScreenEnum).Forget();
         }
 
         /// <summary>
