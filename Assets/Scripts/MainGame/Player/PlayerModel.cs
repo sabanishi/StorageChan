@@ -274,22 +274,19 @@ namespace Sabanishi.MainGame
                 _nowSelectedChip = chip;
 
                 //Directionキーが押されたことを検知して、ペイントする
-                if (Input.GetButtonUp("Paint"))
-                {
-                    SoundManager.PlaySE(SE_Enum.PAINT);
-                    chip.Paint(CalcUtils.ReverseDirection(direction));
-                    _isPainted = true;
-                    _paintCount++;
+                SoundManager.PlaySE(SE_Enum.PAINT);
+                chip.Paint(CalcUtils.ReverseDirection(direction));
+                _isPainted = true;
+                _paintCount++;
 
-                    UniTask.Void(async () =>
-                    {
-                        chip.SetPaintSignActive(false);
-                        _canOperate = false;
-                        PlayPaintAction?.Invoke();
-                        await UniTask.Delay(300);
-                        _canOperate = true;
-                    });
-                }
+                UniTask.Void(async () =>
+                {
+                    chip.SetPaintSignActive(false);
+                    _canOperate = false;
+                    PlayPaintAction?.Invoke();
+                    await UniTask.Delay(300);
+                    _canOperate = true;
+                });
             }
         }
 
@@ -526,6 +523,7 @@ namespace Sabanishi.MainGame
         {
             if (!_isAir.Value && Input.GetButton("Jump"))
             {
+                Debug.Log("A");
                 SoundManager.PlaySE(SE_Enum.JUMP);
                 switch (_bodyDirection.Value)
                 {
