@@ -106,7 +106,7 @@ namespace Sabanishi.MainGame
             _putBoxSubject.Dispose();
             _removeBoxSubject.Dispose();
         }
-
+        
         // ReSharper disable Unity.PerformanceAnalysis
         /// <summary>
         /// 毎フレーム実行される処理
@@ -491,22 +491,28 @@ namespace Sabanishi.MainGame
             if (NowBodyDirection.Value is Direction.Down or Direction.Up)
             {
                 var x = Input.GetAxis("Horizontal");
-                newSpeedVec.x = x switch
+                if (!_isStickJump)
                 {
-                    > 0 => MoveSpeed,
-                    < 0 => -MoveSpeed,
-                    _ => _isStickJump ? _speedVec.x : 0
-                };
+                    newSpeedVec.x = x switch
+                    {
+                        > 0 => MoveSpeed,
+                        < 0 => -MoveSpeed,
+                        _ => _isStickJump ? _speedVec.x : 0
+                    };
+                }
             }
             else
             {
                 var y = Input.GetAxis("Vertical");
-                newSpeedVec.y = y switch
+                if (!_isStickJump)
                 {
-                    > 0 => MoveSpeed,
-                    < 0 => -MoveSpeed,
-                    _ => _isStickJump ? _speedVec.y : 0
-                };
+                    newSpeedVec.y = y switch
+                    {
+                        > 0 => MoveSpeed,
+                        < 0 => -MoveSpeed,
+                        _ => _isStickJump ? _speedVec.y : 0
+                    };
+                }
             }
 
             _speedVec = newSpeedVec;
