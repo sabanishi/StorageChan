@@ -94,8 +94,15 @@ namespace Sabanishi.MainGame
                 _player.Model.SetCanOperate(false);
                 return;
             }
+            
             if (Input.GetButtonDown("Reset"))
             {
+                ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
+            }
+
+            if (Input.GetButtonDown("Quit"))
+            {
+                _gotoStageSelectAction?.Invoke();
                 ScreenTransition.Instance.Move(ScreenEnum.MainGame).Forget();
             }
             
