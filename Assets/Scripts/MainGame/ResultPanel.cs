@@ -28,11 +28,11 @@ namespace Sabanishi.MainGame
                 _paintText.text = paintCount.ToString();
                 
                 await UniTask.Delay(TimeSpan.FromSeconds(0.6f));
-                
+                SoundManager.PlaySE(SE_Enum.PA);
                 _timeRoot.SetActive(true);
                 
                 await UniTask.Delay(TimeSpan.FromSeconds(0.6f));
-                
+                SoundManager.PlaySE(SE_Enum.PA);
                 _paintRoot.SetActive(true);
                 
                 await UniTask.Delay(TimeSpan.FromSeconds(0.6f));

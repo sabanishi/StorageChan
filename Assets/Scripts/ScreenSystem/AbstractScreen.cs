@@ -42,6 +42,7 @@ namespace Sabanihsi.ScreenSystem
         /// </summary>
         public virtual async UniTask CloseAnimation(StageData data,CancellationToken token)
         {
+            SoundManager.PlaySE(SE_Enum.SCENECHANGE);
             await ScreenAnimation.Instance.FadeIn(data.StageName,0.4f,token);
         }
 

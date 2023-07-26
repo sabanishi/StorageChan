@@ -276,6 +276,7 @@ namespace Sabanishi.MainGame
                 //Directionキーが押されたことを検知して、ペイントする
                 if (Input.GetButtonUp("Paint"))
                 {
+                    SoundManager.PlaySE(SE_Enum.PAINT);
                     chip.Paint(CalcUtils.ReverseDirection(direction));
                     _isPainted = true;
                     _paintCount++;
@@ -525,6 +526,7 @@ namespace Sabanishi.MainGame
         {
             if (!_isAir.Value && Input.GetButton("Jump"))
             {
+                SoundManager.PlaySE(SE_Enum.JUMP);
                 switch (_bodyDirection.Value)
                 {
                     case Direction.Down:

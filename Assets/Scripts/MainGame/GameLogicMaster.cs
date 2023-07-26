@@ -58,6 +58,7 @@ namespace Sabanishi.MainGame
 
         public void Open()
         {
+            SoundManager.PlaySE(SE_Enum.HUE);
             _player.Model.SetCanOperate(true);
             _startEffectAnimation.StartEffect(_stagePresenter.PlayerRespawnPos);
         }
@@ -101,9 +102,11 @@ namespace Sabanishi.MainGame
             _isClear = CheckIsClear();
             if (_isClear)
             {
+                SoundManager.PlaySE(SE_Enum.CLEAR);
                 _gotoStageSelectAction?.Invoke();
                 var nowTime = DateTime.Now;
                 _resultPanel.Show(nowTime-_startTime,_player.Model.PaintCount);
+                SoundManager.StopBGM();
             }
         }
 

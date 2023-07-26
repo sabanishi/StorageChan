@@ -1,4 +1,10 @@
 ﻿public enum SE_Enum
 {
-	SAMPLEVOICE,
+	CLEAR,
+	DECIDE,
+	HUE,
+	JUMP,
+	PA,
+	PAINT,
+	SCENECHANGE,
 }
