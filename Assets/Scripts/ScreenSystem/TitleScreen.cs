@@ -17,6 +17,7 @@ namespace Sabanihsi.ScreenSystem
                 .SetLoops(-1,LoopType.Yoyo)
                 .ToUniTask(cancellationToken:this.GetCancellationTokenOnDestroy());
             sequence.Play();
+            SoundManager.PlayBGM(BGM_Enum.STAGESELECT);
         }
 
         private void Update()
