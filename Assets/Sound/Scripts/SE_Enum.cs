@@ -7,4 +7,6 @@
 	PA,
 	PAINT,
 	SCENECHANGE,
+	GRAB,
+	GRAB2,
 }

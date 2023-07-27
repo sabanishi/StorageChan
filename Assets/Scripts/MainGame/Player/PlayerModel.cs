@@ -174,6 +174,7 @@ namespace Sabanishi.MainGame
                     if (Input.GetButtonDown("Decide"))
                     {
                         //ハコを置く
+                        SoundManager.PlaySE(SE_Enum.GRAB2);
                         _isHang.Value = false;
                         Vector2Int putPos = tuple.Item2;
                         _putBoxSubject.OnNext(new ChipData(ChipEnum.Box, null, putPos.x, putPos.y));
@@ -197,6 +198,7 @@ namespace Sabanishi.MainGame
                         //ハコを持つ
                         _isHang.Value = true;
                         _removeBoxSubject.OnNext(box.ChipData);
+                        SoundManager.PlaySE(SE_Enum.GRAB);
                         UniTask.Void(async () =>
                         {
                             _canOperate = false;
@@ -523,7 +525,6 @@ namespace Sabanishi.MainGame
         {
             if (!_isAir.Value && Input.GetButton("Jump"))
             {
-                Debug.Log("A");
                 SoundManager.PlaySE(SE_Enum.JUMP);
                 switch (_bodyDirection.Value)
                 {

@@ -1157,7 +1157,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1307438161767415403, guid: 0337392519d7b423cbe11dfd2cbb3b68, type: 3}
       propertyPath: SE_Clips.Array.size
-      value: 7
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1307438161767415403, guid: 0337392519d7b423cbe11dfd2cbb3b68, type: 3}
       propertyPath: SE_Clips.Array.data[0]
@@ -1187,6 +1187,14 @@ PrefabInstance:
       propertyPath: SE_Clips.Array.data[6]
       value: 
       objectReference: {fileID: 8300000, guid: 19a6d491b78004da98d3c3a1a5bc3baa, type: 3}
+    - target: {fileID: 1307438161767415403, guid: 0337392519d7b423cbe11dfd2cbb3b68, type: 3}
+      propertyPath: SE_Clips.Array.data[7]
+      value: 
+      objectReference: {fileID: 8300000, guid: dfd65707a6f0b47b7a3f5e85d8157337, type: 3}
+    - target: {fileID: 1307438161767415403, guid: 0337392519d7b423cbe11dfd2cbb3b68, type: 3}
+      propertyPath: SE_Clips.Array.data[8]
+      value: 
+      objectReference: {fileID: 8300000, guid: 4c248ffd9d7984bc4b608d74a54c0048, type: 3}
     - target: {fileID: 1307438161767415403, guid: 0337392519d7b423cbe11dfd2cbb3b68, type: 3}
       propertyPath: LoopBGM_Clips.Array.size
       value: 2
