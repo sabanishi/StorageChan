@@ -79,7 +79,11 @@ namespace Sabanishi.MainGame.Stage
                         }else if (int.TryParse(tile.name, out var stageNum))
                         {
                             chipEnum = ChipEnum.Flag;
+                            Debug.Log(stageNum);
                             chipData[x, y] = new ChipData(ChipEnum.Flag,((Tile)tile)?.sprite, x, y, stageNum);
+                        }else if (tile.name.Contains("Tutorial"))
+                        {
+                            chipEnum = ChipEnum.Tutorial;
                         }
                     }
                     
