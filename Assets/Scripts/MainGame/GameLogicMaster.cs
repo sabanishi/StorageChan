@@ -30,6 +30,8 @@ namespace Sabanishi.MainGame
         {
             { "Stage1", "Tilemap/Stage1" },
             { "Stage2", "Tilemap/Stage2" },
+            { "Stage3", "Tilemap/Stage3" },
+            { "Stage4", "Tilemap/Stage4" },
             {"StageSelect","Tilemap/StageSelect"}
         };
 

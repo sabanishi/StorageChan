@@ -27,6 +27,12 @@ namespace Sabanihsi.ScreenSystem
                 case "Stage2":
                     _stageName = "ステージ2";
                     break;
+                case "Stage3":
+                    _stageName = "ステージ3";
+                    break;
+                case "Stage4":
+                    _stageName = "ステージ4";
+                    break;
             }
         }
     }
